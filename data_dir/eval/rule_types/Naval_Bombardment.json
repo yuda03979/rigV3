@@ -1,0 +1,225 @@
+{
+    "logicType": "structured",
+    "structuredlogic": {
+        "id": "root",
+        "expressionType": null,
+        "freeText": null,
+        "expressionGroup": null,
+        "expressionOperand": "None",
+        "leftStatment": null,
+        "rightStatment": null,
+        "groupType": "And",
+        "expressions": [
+            {
+                "id": "root.1",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Naval_Bombardment",
+                        "field": "Ship positioning",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Ship positioning",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.2",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Naval_Bombardment",
+                        "field": "Cannon accuracy",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "Float",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Cannon accuracy",
+                        "valueType": "Float",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.3",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "equal",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Naval_Bombardment",
+                        "field": "Supply of ammunition",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "Int",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Supply of ammunition",
+                        "valueType": "Int",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.4",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Naval_Bombardment",
+                        "field": "Enemy fleet response",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Enemy fleet response",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            }
+        ]
+    },
+    "textualLogic": null,
+    "children": [],
+    "additionalInformation": {},
+    "alertDistributionType": "regular",
+    "_id": "cc5d4428-b04f-47ad-8f7d-001f1e15b27a",
+    "name": "Naval_Bombardment",
+    "lastUpdateTime": "09/16/2024 12:28:31",
+    "description": "",
+    "parameters": [
+        {
+            "name": "Ship positioning",
+            "type": "String",
+            "defaultValue": "",
+            "description": "Allowed answers: 'Port', 'Starboard', 'Bow', 'Stern'",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Cannon accuracy",
+            "type": "Float",
+            "defaultValue": "",
+            "description": "Allowed answers: Any float between 0 and 1, inclusive",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Supply of ammunition",
+            "type": "Int",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Enemy fleet response",
+            "type": "String",
+            "defaultValue": "",
+            "description": "Allowed answers: 'Engage', 'Retreat', 'Call for reinforcements', 'Surrender'",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        }
+    ],
+    "eventDetails": [
+        {
+            "objectName": "Naval_Bombardment",
+            "objectDescription": null,
+            "timeWindowInMilliseconds": 0,
+            "useLatest": false
+        }
+    ]
+}

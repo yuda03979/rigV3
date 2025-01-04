@@ -1,0 +1,369 @@
+{
+    "logicType": "structured",
+    "structuredlogic": {
+        "id": "root",
+        "expressionType": null,
+        "freeText": null,
+        "expressionGroup": null,
+        "expressionOperand": "None",
+        "leftStatment": null,
+        "rightStatment": null,
+        "groupType": "And",
+        "expressions": [
+            {
+                "id": "root.1",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Castle",
+                        "field": "Fortification strength",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "Int",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Fortification strength",
+                        "valueType": "Int",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.2",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Castle",
+                        "field": "Tower height",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "Int",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Tower height",
+                        "valueType": "Int",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.3",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "equal",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Castle",
+                        "field": "Moat presence",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Moat presence",
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.4",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Castle",
+                        "field": "Historical value",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Historical value",
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.5",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Castle",
+                        "field": "Stonework quality",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Stonework quality",
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.6",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Castle",
+                        "field": "Room layout",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Room layout",
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.7",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greaterOrEqual",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Castle",
+                        "field": "Defensive features",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Defensive features",
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            }
+        ]
+    },
+    "textualLogic": null,
+    "children": [],
+    "additionalInformation": {},
+    "alertDistributionType": "regular",
+    "_id": "a596faaf-c5ec-4b11-91e9-5bf2a3ecf6e9",
+    "name": "Castle",
+    "lastUpdateTime": "09/16/2024 12:28:31",
+    "description": "",
+    "parameters": [
+        {
+            "name": "Fortification strength",
+            "type": "Int",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Tower height",
+            "type": "Int",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Moat presence",
+            "type": "string",
+            "defaultValue": "",
+            "description": "Allowed answers: 'Yes', 'No'",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Historical value",
+            "type": "string",
+            "defaultValue": "",
+            "description": "Allowed answers: 'High', 'Medium', 'Low'",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Stonework quality",
+            "type": "string",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Room layout",
+            "type": "string",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Defensive features",
+            "type": "string",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        }
+    ],
+    "eventDetails": [
+        {
+            "objectName": "Castle",
+            "objectDescription": null,
+            "timeWindowInMilliseconds": 0,
+            "useLatest": false
+        }
+    ]
+}

@@ -1,0 +1,321 @@
+{
+    "logicType": "structured",
+    "structuredlogic": {
+        "id": "root",
+        "expressionType": null,
+        "freeText": null,
+        "expressionGroup": null,
+        "expressionOperand": "None",
+        "leftStatment": null,
+        "rightStatment": null,
+        "groupType": "And",
+        "expressions": [
+            {
+                "id": "root.1",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Architect",
+                        "field": "Design creativity",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Design creativity",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.2",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Architect",
+                        "field": "Structural understanding",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Structural understanding",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.3",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "equal",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Architect",
+                        "field": "Client communication",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Client communication",
+                        "valueType": "string",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.4",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Architect",
+                        "field": "Project planning",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Project planning",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.5",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Architect",
+                        "field": "Sustainability focus",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Sustainability focus",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.6",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Architect",
+                        "field": "Technical drawing",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Technical drawing",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            }
+        ]
+    },
+    "textualLogic": null,
+    "children": [],
+    "additionalInformation": {},
+    "alertDistributionType": "regular",
+    "_id": "d2c51a82-e7c4-482c-b48a-f477eaf6be51",
+    "name": "Architect",
+    "lastUpdateTime": "09/16/2024 12:28:31",
+    "description": "",
+    "parameters": [
+        {
+            "name": "Design creativity",
+            "type": "String",
+            "defaultValue": "",
+            "description": "Allowed answers: 'Excellent', 'Good', 'Average', 'Poor'",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Structural understanding",
+            "type": "String",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Client communication",
+            "type": "string",
+            "defaultValue": "",
+            "description": "Allowed answers: 'Clear', 'Average', 'Unclear'",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Project planning",
+            "type": "String",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Sustainability focus",
+            "type": "String",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Technical drawing",
+            "type": "String",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        }
+    ],
+    "eventDetails": [
+        {
+            "objectName": "Architect",
+            "objectDescription": null,
+            "timeWindowInMilliseconds": 0,
+            "useLatest": false
+        }
+    ]
+}

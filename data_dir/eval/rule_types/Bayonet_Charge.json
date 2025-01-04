@@ -1,0 +1,225 @@
+{
+    "logicType": "structured",
+    "structuredlogic": {
+        "id": "root",
+        "expressionType": null,
+        "freeText": null,
+        "expressionGroup": null,
+        "expressionOperand": "None",
+        "leftStatment": null,
+        "rightStatment": null,
+        "groupType": "And",
+        "expressions": [
+            {
+                "id": "root.1",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Bayonet_Charge",
+                        "field": "Close-quarters skill",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Close-quarters skill",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.2",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Bayonet_Charge",
+                        "field": "Fear induction",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Fear induction",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.3",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "equal",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Bayonet_Charge",
+                        "field": "Weapon readiness",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Weapon readiness",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.4",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Bayonet_Charge",
+                        "field": "Unit cohesion",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Unit cohesion",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            }
+        ]
+    },
+    "textualLogic": null,
+    "children": [],
+    "additionalInformation": {},
+    "alertDistributionType": "regular",
+    "_id": "514aa873-e64c-49e8-8eea-b7fe05c7abbb",
+    "name": "Bayonet_Charge",
+    "lastUpdateTime": "09/16/2024 12:28:31",
+    "description": "",
+    "parameters": [
+        {
+            "name": "Close-quarters skill",
+            "type": "String",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Fear induction",
+            "type": "String",
+            "defaultValue": "",
+            "description": "Allowed answers: 'High', 'Moderate', 'Low'",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Weapon readiness",
+            "type": "String",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Unit cohesion",
+            "type": "String",
+            "defaultValue": "",
+            "description": "Allowed answers: 'Excellent', 'Good', 'Fair', 'Poor'",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        }
+    ],
+    "eventDetails": [
+        {
+            "objectName": "Bayonet_Charge",
+            "objectDescription": null,
+            "timeWindowInMilliseconds": 0,
+            "useLatest": false
+        }
+    ]
+}

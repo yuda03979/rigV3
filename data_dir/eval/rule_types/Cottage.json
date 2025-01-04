@@ -1,0 +1,369 @@
+{
+    "logicType": "structured",
+    "structuredlogic": {
+        "id": "root",
+        "expressionType": null,
+        "freeText": null,
+        "expressionGroup": null,
+        "expressionOperand": "None",
+        "leftStatment": null,
+        "rightStatment": null,
+        "groupType": "And",
+        "expressions": [
+            {
+                "id": "root.1",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Cottage",
+                        "field": "Cozy interior",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Cozy interior",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.2",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Cottage",
+                        "field": "Natural materials",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Natural materials",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.3",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "equal",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Cottage",
+                        "field": "Fireplace inclusion",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Fireplace inclusion",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.4",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Cottage",
+                        "field": "Roof slope",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "Int",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Roof slope",
+                        "valueType": "Int",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.5",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Cottage",
+                        "field": "Garden space",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Garden space",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.6",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greater",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Cottage",
+                        "field": "Rustic charm",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Rustic charm",
+                        "valueType": "String",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            },
+            {
+                "id": "root.7",
+                "expressionType": {
+                    "leftOption": "basic",
+                    "rightOption": "parameterValue"
+                },
+                "freeText": null,
+                "expressionGroup": null,
+                "expressionOperand": "greaterOrEqual",
+                "leftStatment": [
+                    {
+                        "atomType": "property",
+                        "objectName": "Cottage",
+                        "field": "Insulation quality",
+                        "fieldType": null,
+                        "isInputObject": true,
+                        "value": null,
+                        "valueType": "Int",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "rightStatment": [
+                    {
+                        "atomType": "parameterValue",
+                        "objectName": null,
+                        "field": null,
+                        "fieldType": null,
+                        "isInputObject": false,
+                        "value": "Insulation quality",
+                        "valueType": "Int",
+                        "operandType": null,
+                        "functionType": null
+                    }
+                ],
+                "groupType": "None",
+                "expressions": null
+            }
+        ]
+    },
+    "textualLogic": null,
+    "children": [],
+    "additionalInformation": {},
+    "alertDistributionType": "regular",
+    "_id": "ce644499-9fde-4dce-832b-d729e32c6cc6",
+    "name": "Cottage",
+    "lastUpdateTime": "09/16/2024 12:28:31",
+    "description": "",
+    "parameters": [
+        {
+            "name": "Cozy interior",
+            "type": "String",
+            "defaultValue": "",
+            "description": "Allowed answers: 'Yes', 'No'",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Natural materials",
+            "type": "String",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Fireplace inclusion",
+            "type": "String",
+            "defaultValue": "",
+            "description": "Allowed answers: 'Yes', 'No'",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Roof slope",
+            "type": "Int",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Garden space",
+            "type": "String",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Rustic charm",
+            "type": "String",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        },
+        {
+            "name": "Insulation quality",
+            "type": "Int",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
+        }
+    ],
+    "eventDetails": [
+        {
+            "objectName": "Cottage",
+            "objectDescription": null,
+            "timeWindowInMilliseconds": 0,
+            "useLatest": false
+        }
+    ]
+}

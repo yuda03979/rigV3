@@ -1,0 +1,60 @@
+# Docker Compose Configuration
+# This configuration sets up a multi-service environment for deploying and running the Ollama application.
+# It includes the Ollama service and a supporting app service, connected via a shared network.
+# Persistent data and model files are managed using defined volumes.
+
+services:
+  ollama:
+    image: ollama/ollama:0.5.4
+    container_name: ollama_rig
+    volumes:
+      - ollama_data:/root/.ollama
+      - ${MODELS_DIRECTORY}:/root/.ollama/models
+      - ${GGUF_AND_MODELFILE_LOCATION}:/root/rig_models
+    restart: unless-stopped
+    healthcheck:
+      # The health check ensures that the Ollama service is running and accessible.
+      # It sends a request to the specified endpoint and verifies a successful response.
+      test: [ "CMD", "curl", "-f", "http://localhost:11434/" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - rig_network
+  app:
+    build: .
+    container_name: rig
+    # The `app` service is the main application container that interacts with the Ollama service.
+    # It serves as the interface for processing and evaluation tasks and communicates with Ollama over the shared network.
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - PROJECT_DIRECTORY=${PROJECT_DIRECTORY}
+      - RULE_TYPES_DIRECTORY=${RULE_TYPES_DIRECTORY}
+      - EVALUATION_DIRECTORY=${EVALUATION_DIRECTORY}
+      - RAG_DIFFERENCE=${RAG_DIFFERENCE}
+      - RAG_THRESHOLD=${RAG_THRESHOLD}
+      - TEMPERATURE=${TEMPERATURE}
+      - TOP_P=${TOP_P}
+      - MAX_CONTEXT_LENGTH=${MAX_CONTEXT_LENGTH}
+      - MAX_NEW_TOKENS=${MAX_NEW_TOKENS}
+      - GEMMA_MODEL_NAME=${GEMMA_MODEL_NAME}
+      - RAG_MODEL_NAME=${RAG_MODEL_NAME}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${PROJECT_DIRECTORY}:${PROJECT_DIRECTORY}
+      - ${RULE_TYPES_DIRECTORY}:${RULE_TYPES_DIRECTORY}
+      - ${EVALUATION_DIRECTORY}:${EVALUATION_DIRECTORY}
+    networks:
+      - rig_network
+volumes:
+  # This volume stores persistent data for the Ollama service.
+  # It ensures that important files, such as configurations or models, are not lost when the container restarts.
+  ollama_data:
+networks:
+  # This network facilitates communication between the `ollama` and `app` services.
+  # It provides an isolated environment to ensure that services can interact securely and reliably.
+  rig_network:
+    driver: bridge
