@@ -43,8 +43,15 @@ class DbRules(DbBase):
 
 
 class DbExamples(DbBase):
-    db_path = GLOBALS.db_rules_path
-    columns = []
-
+    db_path = GLOBALS.db_examples_path
+    columns = ["id", "free_text", "rule_name", "schema", "description", "rule_instance", "embeddings"]
+    # in this point id and free text are the same
     def __init__(self):
         self.init_df()
+
+    def get_data(self, example):
+        return (
+            self.df[self.df["id"] == example, "free_text"],
+            self.df[self.df["id"] == example, "schema"],
+            self.df[self.df["id"] == example, "rule_instance"],
+        )

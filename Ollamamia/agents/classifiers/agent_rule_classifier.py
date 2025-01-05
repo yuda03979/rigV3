@@ -22,7 +22,7 @@ class AgentRuleClassifier:
     def __init__(self, agent_name: str):
         self.agent_name = agent_name
         self.model_nickname = f"{agent_name}_{self.model_nickname}"
-        self.basic_rag = BasicRag(model_nickname=self.model_nickname, max_rules=self.max_rules)
+        self.basic_rag = BasicRag(max_rules=self.max_rules)
         # initializing the model
         MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]
         MODELS_MANAGER[self.model_nickname].config.prefix = self.prefix  # add prefix for improving the rag accuracy
@@ -41,11 +41,12 @@ class AgentRuleClassifier:
         )
 
         succeed = False
-        closest_distance = rules_list[0][1]
+        if rules_list:
+            closest_distance = rules_list[0][1]
 
-        # Validate based on threshold and difference
-        if closest_distance > self.rag_threshold:
-            succeed = True
+            # Validate based on threshold and difference
+            if closest_distance > self.rag_threshold:
+                succeed = True
 
         ####################
 

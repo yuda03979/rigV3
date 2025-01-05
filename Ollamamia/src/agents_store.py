@@ -45,7 +45,6 @@ class AgentsStore:
             self.agents_flow = AgentsFlow(query=query)
             self.start = time.time()
 
-        print(query)
         agent_message = self.agents[model_nickname].predict(query)
 
         if not agent_message.succeed:

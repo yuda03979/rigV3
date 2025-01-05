@@ -6,8 +6,7 @@ import numpy as np
 
 class BasicRag:
 
-    def __init__(self, model_nickname: str, max_rules: int):
-        self.model_nickname = model_nickname
+    def __init__(self, max_rules: int):
         self.max_rules = max_rules
         self.samples_id = []
         self.samples_embeddings = []
@@ -63,7 +62,8 @@ class BasicRag:
         rule_names_result = []
 
         if len(self.samples_id) < 1:
-            raise IndexError("there's no rules!")
+            print("there's no samples")
+            return False
 
         array_similarity = cosine_similarity([query_embedding], self.samples_embeddings)[0]
         if softmax:

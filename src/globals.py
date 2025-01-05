@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv, find_dotenv
+
 load_dotenv(find_dotenv())
 
 
@@ -8,6 +9,7 @@ def validate_path(var_name):
     if not value or not os.path.exists(value):
         print(f"{var_name} is not set or the path does not exist: {value}")
     return value
+
 
 def validate_numeric(var_name, value_type):
     value = os.getenv(var_name)
@@ -20,12 +22,12 @@ def validate_numeric(var_name, value_type):
 
 
 class Globals:
-
     rule_classifier_agent = "rule_classifier"
     examples_finder_agent = "examples_finder"
     rule_instance_generator_agent = "rule_instance_generator"
 
     project_dir = validate_path("PROJECT_DIR")
+    rag_threshold = validate_numeric("RAG_THRESHOLD", value_type=float)
 
     db_rules_path = os.path.join(project_dir, "db_rules.csv")
     db_examples_path = os.path.join(project_dir, "db_examples.csv")

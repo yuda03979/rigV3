@@ -28,6 +28,9 @@ class Rig:
         self.agents_store[GLOBALS.rule_classifier_agent].add_embedded_rules(rules_names, embedded_rules)
 
         # add existing examples into agent
+        examples_names = self.db_examples.df["free_text"].tolist()
+        embedded_examples = self.db_examples.df["embeddings"].tolist()
+        self.agents_store[GLOBALS.examples_finder_agent].add_embedded_examples(examples_names, embedded_examples)
 
     def get_rule_instance(self, free_text: str) -> dict:
         # init the agents flow (the data from old inference)
@@ -38,7 +41,7 @@ class Rig:
         agent_message = self.agents_store[GLOBALS.rule_classifier_agent:free_text]
 
         if not agent_message.succeed:
-            return
+            return {"is_error": True}
         rule_name = agent_message.agent_message
 
         #######
@@ -48,16 +51,22 @@ class Rig:
 
         #######
         # get examples
+        agent_message = self.agents_store[GLOBALS.examples_finder_agent:free_text]
+        if not agent_message.succeed:
+            example1 = None
+            example2 = None
+        else:
+            example1 = agent_message.agent_message[0]
+            example2 = agent_message.agent_message[1]
 
-        # agent_message = self.agents_store[GLOBALS.examples_finder_agent:free_text]
-        # if not agent_message.succeed:
-        #     example1 = None
-        #     example2 = None
-        # example1 = agent_message.agent_message[0]
-        # example2 = agent_message.agent_message[1]
+            # making the examples
 
-        example1 = None
-        example2 = None
+            example1_free_text, example1_schema, example1_output = self.db_examples.df.get_example(example1)
+            example2_free_text, example2_schema, example2_output = self.db_examples.df.get_example(example2)
+
+            example1 = f"free_text:\n{example1_free_text},\nSchema:\n{example1_schema},\nOutput:\n{example1_output}"
+            example2 = f"free_text:\n{example2_free_text},\nschema:\n{example2_schema},\nOutput:\n{example2_output}"
+
         #######
         # generate the rule instance
 
@@ -71,7 +80,10 @@ class Rig:
         )]
 
         agents_flow: pydantic.BaseModel = self.agents_store.get_agents_flow()
-        return agents_flow.model_dump()
+        response = agents_flow.model_dump()
+        response["rule_name"] = rule_name
+        response["rule_instance"] = agents_flow.agents_massages[-1].agent_message
+        return response
 
     def get_rule_types_names(self) -> list:
         return self.db_rules.df['rule_name'].tolist()
@@ -108,17 +120,36 @@ class Rig:
             if index:
                 self.db_rules.df.loc[index] = rule_fields
             else:
-                self.db_rules.append(rule_fields)
+                self.db_rules.df.loc[len(self.db_rules.df)] = rule_fields
             self.db_rules.save_db()
 
     def tweak_parameters(
             self,
             rag_threshold: float,
     ) -> None:
-        pass
+        GLOBALS.rag_threshold = rag_threshold
 
-    def feedback(self, rig_response: dict, good: bool) -> dict:
-        pass
+    def feedback(self, rig_response: dict, good: bool):
+        example = dict(
+            id=rig_response["query"],
+            free_text=rig_response["query"],
+            rule_name=rig_response["rule_name"],
+            schema=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "schema"].iloc[0],
+            description=
+            self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "description"].iloc[0],
+            rule_instance=rig_response["rule_instance"]
+        )
+
+        if good:
+            success, index, example_name, example_embeddings = self.agents_store[GLOBALS.examples_finder_agent].add_example(
+                example["free_text"])
+            if success:
+                example["embeddings"] = example_embeddings
+                if not index:
+                    self.db_examples.df = pd.concat([self.db_examples.df, pd.DataFrame([example])], ignore_index=True)
+                if index:
+                    self.db_examples.df.loc[index] = example
+                self.db_examples.save_db()
 
     def evaluate(
             self,
