@@ -5,6 +5,7 @@ from .globals import GLOBALS
 from .databases import DbRules, DbExamples
 from .new_type import AddNewTypes
 from .evaluation import evaluate_func
+from .post_processing import post_processing
 import pandas as pd
 
 
@@ -17,7 +18,7 @@ class Rig:
 
         self.add_new_types = AddNewTypes()
 
-        self.agents_store = AgentsStore()
+        self.agents_store = AgentsStore()  # ollamamia -> where the agents are
 
         self.agents_store[GLOBALS.rule_classifier_agent] = "AgentRuleClassifier"
         self.agents_store[GLOBALS.examples_finder_agent] = "AgentExamplesClassifier"
@@ -39,7 +40,7 @@ class Rig:
 
         #######
         # classify the rule name
-        agent_message = self.agents_store[GLOBALS.rule_classifier_agent:free_text]
+        agent_message: pydantic.BaseModel = self.agents_store[GLOBALS.rule_classifier_agent:free_text]
 
         if not agent_message.succeed:
             return {"is_error": True}
@@ -49,10 +50,11 @@ class Rig:
         # with the rule_name get from the db_rules the schema and description
         schema = self.db_rules.df.loc[self.db_rules.df["rule_name"] == rule_name, "schema"].iloc[0]
         description = self.db_rules.df.loc[self.db_rules.df["rule_name"] == rule_name, "description"].iloc[0]
+        default_rule_instance = self.db_rules.df.loc[self.db_rules.df["rule_name"] == rule_name, "default_rule_instance"].iloc[0]
 
         #######
         # get examples
-        agent_message = self.agents_store[GLOBALS.examples_finder_agent:free_text]
+        agent_message: pydantic.BaseModel = self.agents_store[GLOBALS.examples_finder_agent:free_text]
         if not agent_message.succeed:
             example1 = None
             example2 = None
@@ -62,16 +64,16 @@ class Rig:
 
             # making the examples
 
-            example1_free_text, example1_schema, example1_output = self.db_examples.df.get_example(example1)
-            example2_free_text, example2_schema, example2_output = self.db_examples.df.get_example(example2)
+            example1_free_text, example1_schema, example1_output = self.db_examples.get_example(example1)
+            example2_free_text, example2_schema, example2_output = self.db_examples.get_example(example2)
 
-            example1 = f"free_text:\n{example1_free_text},\nSchema:\n{example1_schema},\nOutput:\n{example1_output}"
-            example2 = f"free_text:\n{example2_free_text},\nschema:\n{example2_schema},\nOutput:\n{example2_output}"
+            example1 = f"Free_text:\n{example1_free_text},\nSchema:\n{example1_schema},\nOutput:\n{example1_output}"
+            example2 = f"Free_text:\n{example2_free_text},\nschema:\n{example2_schema},\nOutput:\n{example2_output}"
 
         #######
         # generate the rule instance
 
-        agent_message = self.agents_store[GLOBALS.rule_instance_generator_agent:dict(
+        agent_message: pydantic.BaseModel = self.agents_store[GLOBALS.rule_instance_generator_agent:dict(
             query=free_text,
             schema=str(schema),
             rule_name=rule_name,
@@ -82,8 +84,23 @@ class Rig:
 
         agents_flow: pydantic.BaseModel = self.agents_store.get_agents_flow()
         response = agents_flow.model_dump()
+        print(response)
         response["rule_name"] = rule_name
-        response["rule_instance"] = agents_flow.agents_massages[-1].agent_message
+        response["rule_instance_params"] = agents_flow.agents_massages[-1].agent_message
+
+        ########
+        # post processing
+
+        if not agents_flow.is_error:
+            response["rule_instance"] = post_processing(
+                rule_name,
+                response["rule_instance_params"],
+                schema=schema,
+                default_rule_instance=default_rule_instance
+            )
+        else:
+            response["rule_instance"] = {}
+
         return response
 
     def get_rules_names(self) -> list:
@@ -143,7 +160,7 @@ class Rig:
             rule_name=rig_response["rule_name"],
             schema=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "schema"].iloc[0],
             description=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "description"].iloc[0],
-            rule_instance=rig_response["rule_instance"]
+            rule_instance_params=rig_response["rule_instance_params"]
         )
 
         if good:

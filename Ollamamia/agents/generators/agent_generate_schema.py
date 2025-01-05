@@ -44,7 +44,6 @@ class AgentGenerateSchema:
 
         start = time.time()
 
-
         prompt = self.prompt_func(
             free_text=query,
             rule_name=rule_name,

@@ -15,7 +15,7 @@ class AgentExamplesClassifier:
 
     max_examples: int = 100_000
     prefix: str = "classification: \n"
-    num_examples: int = 2
+    num_examples: int = 100_000
     softmax: bool = True
     softmax_temperature: float = 0
 
