@@ -26,14 +26,20 @@ class Globals:
     examples_finder_agent = "examples_finder"
     rule_instance_generator_agent = "rule_instance_generator"
 
+    generation_model_name = os.getenv("GENERATION_MODEL_NAME")
+    rag_model_name = os.getenv("RAG_MODEL_NAME")
+
     project_dir = validate_path("PROJECT_DIR")
     rag_threshold = validate_numeric("RAG_THRESHOLD", value_type=float)
+    examples_rag_threshold = validate_numeric("EXAMPLES_RAG_THRESHOLD", value_type=float)
 
+
+    # things that should be in project_dir
     db_rules_path = os.path.join(project_dir, "db_rules.csv")
     db_examples_path = os.path.join(project_dir, "db_examples.csv")
-
     rules_folder_path = os.path.join(project_dir, "eval", "rule_types")
     evaluation_data_path = os.path.join(project_dir, "eval", "evaluation_data.csv")
+    evaluation_output_dir = os.path.join(project_dir, "eval", "output")
 
 
 GLOBALS = Globals()

@@ -4,6 +4,7 @@ from Ollamamia.src.agents_store import AgentsStore
 from .globals import GLOBALS
 from .databases import DbRules, DbExamples
 from .new_type import AddNewTypes
+from .evaluation import evaluate_func
 import pandas as pd
 
 
@@ -158,4 +159,13 @@ class Rig:
             sleep_time_each_10_iter=30,
             batch_size=250
     ):
-        pass
+        evaluate_func(
+            self,
+            data_file_path=GLOBALS.evaluation_data_path,
+            output_directory=GLOBALS.evaluation_output_dir,
+            start_point=start_point,
+            end_point=end_point,  # -1 all the data (almost...)
+            sleep_time_each_10=sleep_time_each_10_iter,
+            batch_size=batch_size
+        )
+

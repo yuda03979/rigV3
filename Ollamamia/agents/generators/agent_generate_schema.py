@@ -2,6 +2,7 @@ from ...globals_dir.models_manager import MODELS_MANAGER
 from ...globals_dir.utils import get_dict
 import time
 from ...globals_dir.utils import AgentMessage
+from src.globals import GLOBALS
 
 
 class AgentGenerateSchema:
@@ -10,7 +11,7 @@ class AgentGenerateSchema:
 
     model_nickname = str(MODELS_MANAGER.get_num_models())
     engine = "ollama"
-    model_name = "gemma-2-2b-it-Q8_0:rig"
+    model_name = GLOBALS.generation_model_name  # "gemma-2-2b-it-Q8_0:rig"
     model_type = "gemma2"
     task = "generate"
 

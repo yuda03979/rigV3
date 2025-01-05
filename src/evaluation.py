@@ -437,5 +437,4 @@ def embed_queries_for_eval(data_file_path):
     ]
     for row_id, free_text, expected, type_name in free_text_list:
         responses = {"row_id": row_id, "free_text": free_text, "model_response": expected, "type_name": type_name}
-        log_question_and_answer(responses)
         # print(row_id, type_name)
