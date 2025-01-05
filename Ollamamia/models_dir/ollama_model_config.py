@@ -1,6 +1,6 @@
 from typing import Optional, Sequence, Literal, Union
 from pydantic.json_schema import JsonSchemaValue
-from globals_dir.utils import CustomBasePydantic
+from ..globals_dir.utils import CustomBasePydantic
 
 
 class ConfigOptions(CustomBasePydantic):

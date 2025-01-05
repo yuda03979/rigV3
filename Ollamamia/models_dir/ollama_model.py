@@ -1,7 +1,7 @@
 from typing import Union, Sequence, Literal
 import ollama
-from models_dir.ollama_model_config import OllamaModelConfig
-from globals_dir.utils import handle_errors
+from ..models_dir.ollama_model_config import OllamaModelConfig
+from ..globals_dir.utils import handle_errors
 
 
 class OllamaBaseModel:

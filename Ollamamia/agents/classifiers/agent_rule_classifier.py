@@ -1,6 +1,6 @@
-from globals_dir.models_manager import MODELS_MANAGER
-from globals_dir.utils import AgentMessage
-from agents.logic.basic_rag import BasicRag
+from ...globals_dir.models_manager import MODELS_MANAGER
+from ...globals_dir.utils import AgentMessage
+from ..logic.basic_rag import BasicRag
 import time
 
 
@@ -76,7 +76,6 @@ class AgentRuleClassifier:
         success, index = self.basic_rag.add_sample(sample_id=rule_name, sample_embeddings=query_embeddings)
         return success, index, rule_name, query_embeddings
 
-
     def add_ruleS(self, rules_names: list[str], queries_to_embed: list[str]) -> tuple[list[str], list[list[float]]]:
         """
         ERASING EXISTING SAMPLES!!
@@ -87,3 +86,6 @@ class AgentRuleClassifier:
         queries_embeddings: list[list[float]] = MODELS_MANAGER[self.model_nickname].infer(queries_to_embed)
         self.basic_rag.add_samples(samples_ids=rules_names, sample_embeddings=queries_embeddings)
         return rules_names, queries_embeddings
+
+    def add_embedded_rules(self, rules: list[str], embedded_rules: list[list[float]]) -> None:
+        self.basic_rag.add_samples(samples_ids=rules, sample_embeddings=embedded_rules)

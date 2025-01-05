@@ -1,3 +1,3 @@
-from models_manager import ModelsManager
+from ..src.models_manager import ModelsManager
 
 MODELS_MANAGER = ModelsManager()

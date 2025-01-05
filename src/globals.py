@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 
 
 def validate_path(var_name):

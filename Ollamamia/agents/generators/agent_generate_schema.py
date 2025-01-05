@@ -1,7 +1,7 @@
-from globals_dir.models_manager import MODELS_MANAGER
-from globals_dir.utils import get_dict
+from ...globals_dir.models_manager import MODELS_MANAGER
+from ...globals_dir.utils import get_dict
 import time
-from globals_dir.utils import AgentMessage
+from ...globals_dir.utils import AgentMessage
 
 
 class AgentGenerateSchema:
@@ -32,7 +32,7 @@ class AgentGenerateSchema:
 
     def predict(
             self,
-            **kwargs
+            kwargs  # need change. i did it because it get dict
     ):
         query: str = kwargs["query"]
         schema: dict = kwargs["schema"]

@@ -36,15 +36,15 @@ class BasicRag:
             self.samples_embeddings.append(sample_embeddings)
             return success, index
 
-        def add_samples(samples_ids: list[str], sample_embeddings: list[list[float]]):
-            """
-            ERASING EXISTING SAMPLES!!
-            :param samples_ids:
-            :param sample_embeddings:
-            :return:
-            """
-            self.samples_id = samples_ids
-            self.samples_embeddings = sample_embeddings
+    def add_samples(self, samples_ids: list[str], sample_embeddings: list[list[float]]):
+        """
+        ERASING EXISTING SAMPLES!!
+        :param samples_ids:
+        :param sample_embeddings:
+        :return:
+        """
+        self.samples_id = samples_ids
+        self.samples_embeddings = sample_embeddings
 
     def get_close_types_names(
             self,

@@ -1,9 +1,10 @@
 import time
 
-from agents.classifiers.agent_rule_classifier import AgentRuleClassifier
-from agents.generators.agent_generate_schema import AgentGenerateSchema
-from agents.classifiers.agent_examples_classifier import AgentExamplesClassifier
-from globals_dir.utils import AgentsFlow
+from ..agents.classifiers.agent_rule_classifier import AgentRuleClassifier
+from ..agents.generators.agent_generate_schema import AgentGenerateSchema
+from ..agents.classifiers.agent_examples_classifier import AgentExamplesClassifier
+from ..globals_dir.utils import AgentsFlow
+
 
 class AgentsStore:
 
@@ -18,7 +19,6 @@ class AgentsStore:
         self.store = ""  # enum for available models
         self.agents_flow = None
         self.start = None
-
 
     def add_agents(self, agent_nickname: str, agent_name: str):
         """
@@ -37,16 +37,23 @@ class AgentsStore:
         self.agents[agent_nickname] = self.agents_available[agent_name](agent_name=agent_nickname)
 
     def predict(self, model_nickname, query: dict | str):
-        if not model_nickname in self.models.keys():
-            handle_errors(e=f"model_nickname: {model_nickname} do not exist. \nexisting nicknames: {list(self.agents.keys())}")
+
+        if not model_nickname in self.agents.keys():
+            print(f"model_nickname: {model_nickname} do not exist. \nexisting nicknames: {list(self.agents.keys())}")
+
         if not self.agents_flow:
             self.agents_flow = AgentsFlow(query=query)
             self.start = time.time()
+
+        print(query)
         agent_message = self.agents[model_nickname].predict(query)
-        if agent_message.succeed == False:
+
+        if not agent_message.succeed:
             self.agents_flow.is_error = True
+
         self.agents_flow.append(agent_message)
-        return self.agents_message
+
+        return agent_message
 
     def new(self):
         """
@@ -66,7 +73,7 @@ class AgentsStore:
 
     def __getitem__(self, item):
         if isinstance(item, slice):
-            self.predict(item.start, item.stop)
+            return self.predict(item.start, item.stop)
         else:
             return self.agents.get(item)
 
@@ -76,5 +83,3 @@ class AgentsStore:
         :return:
         """
         pass
-
-

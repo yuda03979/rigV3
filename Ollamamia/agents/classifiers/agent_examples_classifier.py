@@ -1,6 +1,6 @@
-from globals_dir.models_manager import MODELS_MANAGER
-from globals_dir.utils import AgentMessage
-from agents.logic.basic_rag import BasicRag
+from ...globals_dir.models_manager import MODELS_MANAGER
+from ...globals_dir.utils import AgentMessage
+from ..logic.basic_rag import BasicRag
 import time
 
 
@@ -62,9 +62,9 @@ class AgentExamplesClassifier:
         example = self.prefix + example
         example_embeddings: list[float] = MODELS_MANAGER[self.model_nickname].infer(example)[0]
         other_examples = self.basic_rag.get_close_types_names(
-                query_embedding=example_embeddings,
-                softmax=self.softmax,
-                temperature=self.softmax_temperature
+            query_embedding=example_embeddings,
+            softmax=self.softmax,
+            temperature=self.softmax_temperature
         )
         if other_examples[0][1] > self.similarity_threshold_adding_example:
             print("there's similar examples already. no action perform.")
@@ -72,7 +72,6 @@ class AgentExamplesClassifier:
         else:
             self.basic_rag.add_sample(sample_id=example, sample_embeddings=example_embeddings)
             return example, example_embeddings
-
 
     def add_exampleS(self, examples: list[str]) -> tuple[list[str], list[list[float]]]:
         """
@@ -84,3 +83,6 @@ class AgentExamplesClassifier:
         examples_embeddings: list[list[float]] = MODELS_MANAGER[self.model_nickname].infer(examples)
         self.basic_rag.add_samples(samples_ids=examples, sample_embeddings=examples_embeddings)
         return examples, examples_embeddings
+
+    def add_embedded_examples(self, examples: list[str], embedded_examples: list[list[float]]) -> None:
+        self.basic_rag.add_samples(samples_ids=examples, sample_embeddings=embedded_examples)

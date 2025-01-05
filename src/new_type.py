@@ -9,8 +9,9 @@ class AddNewType:
     def add(self, rule_type: dict | None):
 
         if rule_type is None:
-            if rule_type.endswith(".json"):
-                with open(rule_type, 'r') as file:
+            file_path = os.path.join(self.folder, rule_type)
+            if file_path.endswith(".json"):
+                with open(file_path, 'r') as file:
                     rule_type_json = file.read()
                 rule_type: dict = json.loads(rule_type_json)
 
@@ -85,21 +86,20 @@ class AddNewTypes(AddNewType):
         if rule_types is None:
             rule_types = []
             for file_name in os.listdir(self.folder):
-                if file_name.endswith(".json"):
-                    with open(file_name, 'r') as file:
+                file_path = os.path.join(self.folder, file_name)
+                if file_path.endswith(".json"):
+                    with open(file_path, 'r') as file:
                         rule_type_json = file.read()
                     rule_type: dict = json.loads(rule_type_json)
                     rule_types.append(rule_type)
 
         #  for each rule create everything its need except the embeddings
         rules_fields = []
+        chunks_to_embed = []
         for rule in rule_types:
-            rules_fields.append(self.add(rule))
+            fields = self.add(rule)
+            rules_fields.append(fields[0])
+            chunks_to_embed.append(fields[1])
 
-        words_to_embed = [
-            f"rule type name: {fields["rule_name"]}\nschema: {fields["schema"]}"
-            for fields in rules_fields
-        ]
-
-        return rules_fields, words_to_embed
+        return rules_fields, chunks_to_embed
 

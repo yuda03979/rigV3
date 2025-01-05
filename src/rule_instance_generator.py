@@ -1,6 +1,8 @@
+import pydantic
+
 from Ollamamia.src.agents_store import AgentsStore
 from .globals import GLOBALS
-from databases import DbRules, DbExamples
+from .databases import DbRules, DbExamples
 from .new_type import AddNewTypes
 import pandas as pd
 
@@ -21,9 +23,11 @@ class Rig:
         self.agents_store[GLOBALS.rule_instance_generator_agent] = "AgentGenerateSchema"
 
         # add existing rules into agent
+        rules_names = self.db_rules.df["rule_name"].tolist()
+        embedded_rules = self.db_rules.df["embeddings"].tolist()
+        self.agents_store[GLOBALS.rule_classifier_agent].add_embedded_rules(rules_names, embedded_rules)
+
         # add existing examples into agent
-
-
 
     def get_rule_instance(self, free_text: str) -> dict:
         # init the agents flow (the data from old inference)
@@ -31,7 +35,7 @@ class Rig:
 
         #######
         # classify the rule name
-        agent_message = self.agents_store[GLOBALS.rule_classifier_agent].predict(free_text)
+        agent_message = self.agents_store[GLOBALS.rule_classifier_agent:free_text]
 
         if not agent_message.succeed:
             return
@@ -39,39 +43,41 @@ class Rig:
 
         #######
         # with the rule_name get from the db_rules the schema and description
-        schema = self.db_rules.df[self.db_rules.df["rule_name"] == rule_name, "schema"]
-        description = self.db_rules.df[self.db_rules.df["rule_name"] == rule_name, "description"]
+        schema = self.db_rules.df.loc[self.db_rules.df["rule_name"] == rule_name, "schema"].iloc[0]
+        description = self.db_rules.df.loc[self.db_rules.df["rule_name"] == rule_name, "description"].iloc[0]
 
         #######
         # get examples
 
-        agent_message = self.agents_store[GLOBALS.examples_finder_agent].predict(free_text)
-        if not agent_message.succeed:
-            example1 = None
-            example2 = None
-        example1 = agent_message.agent_message[0]
-        example2 = agent_message.agent_message[1]
+        # agent_message = self.agents_store[GLOBALS.examples_finder_agent:free_text]
+        # if not agent_message.succeed:
+        #     example1 = None
+        #     example2 = None
+        # example1 = agent_message.agent_message[0]
+        # example2 = agent_message.agent_message[1]
 
+        example1 = None
+        example2 = None
         #######
         # generate the rule instance
 
-        agent_message = self.agents_store[GLOBALS.examples_finder_agent].predict(
+        agent_message = self.agents_store[GLOBALS.rule_instance_generator_agent:dict(
             query=free_text,
-            schema=schema,
+            schema=str(schema),
             rule_name=rule_name,
-            example1=example1,
-            example2=example2,
-            description=description
-        )
+            example1=str(example1),
+            example2=str(example2),
+            description=str(description)
+        )]
 
-        agents_flow = self.agents_store.get_agents_flow()
-        return agents_flow
+        agents_flow: pydantic.BaseModel = self.agents_store.get_agents_flow()
+        return agents_flow.model_dump()
 
     def get_rule_types_names(self) -> list:
-        return self.db_rules.df['type_name'].tolist()
+        return self.db_rules.df['rule_name'].tolist()
 
     def get_rule_type_details(self, rule_name: str) -> dict:
-        return self.db_rules.df[self.db_rules.df['type_name'] == rule_name].to_dict(orient='records')[0]
+        return self.db_rules.df[self.db_rules.df['rule_name'] == rule_name].to_dict(orient='records')[0]
 
     def set_rule_types(self, rule_types: list[dict] = None) -> None:
         # get all the fields and the queries to embed
@@ -79,7 +85,8 @@ class Rig:
 
         # agent embed and add everything to the agent data
         rules_names = [rule['rule_name'] for rule in rules_fields]
-        rules_names, rules_embeddings = self.agents_store[GLOBALS.rule_classifier_agent].add_ruleS(rules_names, chunks_to_embed)
+        rules_names, rules_embeddings = self.agents_store[GLOBALS.rule_classifier_agent].add_ruleS(rules_names,
+                                                                                                   chunks_to_embed)
         for i in range(len(rules_fields)):
             rules_fields[i]["embeddings"] = rules_embeddings[i]
 
@@ -87,13 +94,13 @@ class Rig:
         self.db_rules.df = pd.DataFrame(rules_fields)
         self.db_rules.save_db()
 
-
     def add_rule_type(self, rule_type: dict = None) -> None:
         # get all the fields and the queries to embed
         rule_fields, words_to_embed = self.add_new_types.add(rule_type=rule_type)
 
         # agent embed and add everything to the agent data
-        success, index, rule_name, rule_embeddings = self.agents_store[GLOBALS.rule_classifier_agent].add_rule(rule_fields["rule_name"], words_to_embed)
+        success, index, rule_name, rule_embeddings = self.agents_store[GLOBALS.rule_classifier_agent].add_rule(
+            rule_fields["rule_name"], words_to_embed)
         rule_fields["embeddings"] = rule_embeddings
 
         # add to the db for future loading

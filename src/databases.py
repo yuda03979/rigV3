@@ -1,7 +1,7 @@
 import ast
 import json
 from typing import Any
-from globals import GLOBALS
+from .globals import GLOBALS
 import pandas as pd
 
 
@@ -14,7 +14,8 @@ class DbBase:
         self.validate_db_path(self.db_path)
         try:
             self.df = pd.read_csv(self.db_path)
-            self.df = self.df.map(self.parse_value)
+            for col in self.columns:
+                self.df[col] = self.df[col].apply(json.loads)
         except:
             self.df = pd.DataFrame(columns=self.columns)
             self.save_db()
