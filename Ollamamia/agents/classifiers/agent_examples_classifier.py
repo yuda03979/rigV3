@@ -13,8 +13,6 @@ class AgentExamplesClassifier:
     model_name = GLOBALS.rag_model_name  # "snowflake-arctic-embed:137m"
     task = "embed"
 
-    similarity_threshold_adding_example: float = 0.5  # without softmax
-
     max_examples: int = 100_000
     prefix: str = "classification: \n"
     num_examples: int = 2
@@ -28,6 +26,10 @@ class AgentExamplesClassifier:
         # initializing the model
         MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]
         MODELS_MANAGER[self.model_nickname].config.prefix = self.prefix  # add prefix for improving the rag accuracy
+
+    @property
+    def similarity_threshold_adding_example(self):
+        return GLOBALS.examples_rag_threshold  # without softmax
 
     def predict(self, query: str):
         start = time.time()

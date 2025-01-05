@@ -13,8 +13,6 @@ class AgentRuleClassifier:
     model_name = GLOBALS.rag_model_name  # "snowflake-arctic-embed:137m"
     task = "embed"
 
-    rag_threshold: float = 0.5  # if the highest similarity is under this - we failed.
-
     max_rules: int = 100_000
     prefix: str = "classification: \n"
     softmax: bool = True
@@ -27,6 +25,10 @@ class AgentRuleClassifier:
         # initializing the model
         MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]
         MODELS_MANAGER[self.model_nickname].config.prefix = self.prefix  # add prefix for improving the rag accuracy
+
+    @property
+    def rag_threshold(self):
+        return GLOBALS.rag_threshold  # with softmax. we fail if the score is lower.
 
     def predict(self, query: str):
         start = time.time()

@@ -22,6 +22,7 @@ def validate_numeric(var_name, value_type):
 
 
 class Globals:
+    # those 3 are just a nickname:
     rule_classifier_agent = "rule_classifier"
     examples_finder_agent = "examples_finder"
     rule_instance_generator_agent = "rule_instance_generator"
@@ -32,7 +33,6 @@ class Globals:
     project_dir = validate_path("PROJECT_DIR")
     rag_threshold = validate_numeric("RAG_THRESHOLD", value_type=float)
     examples_rag_threshold = validate_numeric("EXAMPLES_RAG_THRESHOLD", value_type=float)
-
 
     # things that should be in project_dir
     db_rules_path = os.path.join(project_dir, "db_rules.csv")

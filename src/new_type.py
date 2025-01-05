@@ -4,11 +4,19 @@ from .globals import GLOBALS
 
 
 class AddNewType:
+    """
+    prepare all the data for single new rule type (no embedding)
+    """
     folder = GLOBALS.rules_folder_path
 
-    def add(self, rule_type: dict | None):
+    def add(self, rule_type: dict | str):
+        """
 
-        if rule_type is None:
+        :param rule_type: the file_name or the dict
+        :return: the data for using the rule
+        """
+
+        if isinstance(rule_type, str):
             file_path = os.path.join(self.folder, rule_type)
             if file_path.endswith(".json"):
                 with open(file_path, 'r') as file:
@@ -78,6 +86,10 @@ class AddNewType:
 
 
 class AddNewTypes(AddNewType):
+    """
+    prepare batch of rule types for storing in db. (no embedding)
+    """
+
     folder = GLOBALS.rules_folder_path
 
     def load(self, rule_types: list[dict] | None):

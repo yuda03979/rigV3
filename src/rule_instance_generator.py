@@ -92,7 +92,7 @@ class Rig:
     def get_rule_type_details(self, rule_name: str) -> dict:
         return self.db_rules.df[self.db_rules.df['rule_name'] == rule_name].to_dict(orient='records')[0]
 
-    def set_rule_types(self, rule_types: list[dict] = None) -> None:
+    def set_rule_types(self, rule_types: list[dict] = None) -> bool:
         # get all the fields and the queries to embed
         rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types)
 
@@ -106,8 +106,9 @@ class Rig:
         # add to the db for future loading
         self.db_rules.df = pd.DataFrame(rules_fields)
         self.db_rules.save_db()
+        return True
 
-    def add_rule_type(self, rule_type: dict = None) -> None:
+    def add_rule_type(self, rule_type: dict = None) -> bool:
         # get all the fields and the queries to embed
         rule_fields, words_to_embed = self.add_new_types.add(rule_type=rule_type)
 
@@ -124,20 +125,24 @@ class Rig:
                 self.db_rules.df.loc[len(self.db_rules.df)] = rule_fields
             self.db_rules.save_db()
 
+        return True
+
     def tweak_parameters(
             self,
             rag_threshold: float,
-    ) -> None:
+            examples_rag_threshold: float
+    ) -> bool:
         GLOBALS.rag_threshold = rag_threshold
+        GLOBALS.examples_rag_threshold = examples_rag_threshold
+        return True
 
-    def feedback(self, rig_response: dict, good: bool):
+    def feedback(self, rig_response: dict, good: bool) -> bool:
         example = dict(
             id=rig_response["query"],
             free_text=rig_response["query"],
             rule_name=rig_response["rule_name"],
             schema=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "schema"].iloc[0],
-            description=
-            self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "description"].iloc[0],
+            description=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "description"].iloc[0],
             rule_instance=rig_response["rule_instance"]
         )
 
@@ -151,6 +156,11 @@ class Rig:
                 if index:
                     self.db_examples.df.loc[index] = example
                 self.db_examples.save_db()
+
+        else:
+            pass
+
+        return True
 
     def evaluate(
             self,
