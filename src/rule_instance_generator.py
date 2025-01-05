@@ -86,13 +86,13 @@ class Rig:
         response["rule_instance"] = agents_flow.agents_massages[-1].agent_message
         return response
 
-    def get_rule_types_names(self) -> list:
+    def get_rules_names(self) -> list:
         return self.db_rules.df['rule_name'].tolist()
 
-    def get_rule_type_details(self, rule_name: str) -> dict:
+    def get_rule_details(self, rule_name: str) -> dict:
         return self.db_rules.df[self.db_rules.df['rule_name'] == rule_name].to_dict(orient='records')[0]
 
-    def set_rule_types(self, rule_types: list[dict] = None) -> bool:
+    def set_rules(self, rule_types: list[dict] = None) -> bool:
         # get all the fields and the queries to embed
         rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types)
 
@@ -108,7 +108,7 @@ class Rig:
         self.db_rules.save_db()
         return True
 
-    def add_rule_type(self, rule_type: dict = None) -> bool:
+    def add_rule(self, rule_type: dict = None) -> bool:
         # get all the fields and the queries to embed
         rule_fields, words_to_embed = self.add_new_types.add(rule_type=rule_type)
 

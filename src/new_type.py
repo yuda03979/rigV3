@@ -5,15 +5,21 @@ from .globals import GLOBALS
 
 class AddNewType:
     """
-    prepare all the data for single new rule type (no embedding)
+    Prepares all the data for a single new rule type (without embedding).
     """
+
     folder = GLOBALS.rules_folder_path
 
     def add(self, rule_type: dict | str):
         """
+        Adds a new rule type by preparing schema, description, and default values.
 
-        :param rule_type: the file_name or the dict
-        :return: the data for using the rule
+        :param rule_type: A dictionary representing the rule type or a string (file name) pointing to a JSON file.
+        :return: A tuple containing:
+                 - A dictionary with rule metadata and default rule instance.
+                 - A string of words to embed for processing.
+        :raises FileNotFoundError: If the provided file path does not exist.
+        :raises json.JSONDecodeError: If the JSON file cannot be parsed.
         """
 
         if isinstance(rule_type, str):
@@ -40,7 +46,13 @@ class AddNewType:
             'rule_type': rule_type,
         }, words_to_embed
 
-    def create_schema(self, rule_type) -> dict:
+    def create_schema(self, rule_type: dict) -> dict:
+        """
+        Generates the schema for the rule type.
+
+        :param rule_type: A dictionary representing the rule type with parameters.
+        :return: A dictionary containing the schema with parameter names and their data types.
+        """
         schema = {}
         for param in rule_type["parameters"]:
             schema[param["name"]] = str(param["type"])
@@ -48,27 +60,45 @@ class AddNewType:
         schema['severity'] = "int"
         return schema
 
-    def create_description(self, rule_type) -> dict:
+    def create_description(self, rule_type: dict) -> dict:
+        """
+        Generates descriptions for each rule parameter.
+
+        :param rule_type: A dictionary representing the rule type with parameters and descriptions.
+        :return: A dictionary containing descriptions for each parameter, global description, and event details.
+        """
         description = {}
         for param in rule_type["parameters"]:
             description[param["name"] + "_description"] = str(param["description"])
-        description['ruleInstanceName_description'] = "about what the message and to what it related in the db."
-        description['severity_description'] = "level of importance, criticality, or risk."
+        description['ruleInstanceName_description'] = "About what the message is and its relation to the database."
+        description['severity_description'] = "Level of importance, criticality, or risk."
         description["event details"] = {}
         description["global description"] = str(rule_type["description"])
         description["object name"] = rule_type["eventDetails"][0]["objectName"]
         return description
 
-    def create_default_values(self, rule_type) -> dict:
-        """ assuming severity and ruleInstanceName default values"""
+    def create_default_values(self, rule_type: dict) -> dict:
+        """
+        Generates default values for each rule parameter.
+
+        :param rule_type: A dictionary representing the rule type.
+        :return: A dictionary with default values for each parameter.
+        """
         default_values = {}
         for param in rule_type["parameters"]:
             default_values[param["name"]] = str(param["defaultValue"])
         return default_values
 
-    def create_default_rule_instance(self, rule_type, default_values) -> dict:
+    def create_default_rule_instance(self, rule_type: dict, default_values: dict) -> dict:
+        """
+        Creates a default instance of the rule type.
+
+        :param rule_type: A dictionary representing the rule type.
+        :param default_values: A dictionary containing default values for rule parameters.
+        :return: A dictionary representing the default rule instance with standard fields populated.
+        """
         rule_instance = {
-            "_id": "00000000-0000-0000-0000-000000000000",  # Sample ID
+            "_id": "00000000-0000-0000-0000-000000000000",
             "description": "string",
             "isActive": True,
             "lastUpdateTime": "00/00/0000 00:00:00",
@@ -87,14 +117,23 @@ class AddNewType:
 
 class AddNewTypes(AddNewType):
     """
-    prepare batch of rule types for storing in db. (no embedding)
+    Prepares a batch of rule types for storage in the database (without embedding).
     """
 
     folder = GLOBALS.rules_folder_path
 
-    def load(self, rule_types: list[dict] | None):
+    def load(self, rule_types: list[dict] | None = None):
+        """
+        Loads rule types from the folder or accepts a list of rule types as input.
 
-        #  create rule_types: list[dict] of rules.
+        :param rule_types: A list of rule type dictionaries, or None to load from the folder.
+        :return: A tuple containing:
+                 - A list of dictionaries representing prepared rule types.
+                 - A list of strings to embed for each rule type.
+        :raises FileNotFoundError: If the rule files are not found in the specified folder.
+        :raises json.JSONDecodeError: If a rule file cannot be parsed.
+        """
+        # Create rule_types list if not provided
         if rule_types is None:
             rule_types = []
             for file_name in os.listdir(self.folder):
@@ -105,13 +144,12 @@ class AddNewTypes(AddNewType):
                     rule_type: dict = json.loads(rule_type_json)
                     rule_types.append(rule_type)
 
-        #  for each rule create everything its need except the embeddings
+        # For each rule, prepare all necessary fields except embeddings
         rules_fields = []
-        chunks_to_embed = []
+        chunks_to_embed = []  # list of what we will search similarity
         for rule in rule_types:
             fields = self.add(rule)
             rules_fields.append(fields[0])
             chunks_to_embed.append(fields[1])
 
         return rules_fields, chunks_to_embed
-

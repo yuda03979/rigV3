@@ -16,22 +16,22 @@ def get_rule_instance(free_text) -> dict:
 
 @app.get("/get_rule_types_names")
 def get_rule_types_names() -> list[str]:
-    return rig.get_rule_types_names()
+    return rig.get_rules_names()
 
 
 @app.get("/get_rule_type_details")
 def get_rule_type_details(rule_name: str) -> dict:
-    return rig.get_rule_type_details(rule_name)
+    return rig.get_rule_details(rule_name)
 
 
 @app.post("/set_rule_types")
 def set_rule_types() -> bool:
-    return rig.set_rule_types()
+    return rig.set_rules()
 
 
 @app.post("/add_rule_type")
 def add_rule_type(json_file_name) -> bool:
-    return rig.add_rule_type(json_file_name)
+    return rig.add_rule(json_file_name)
 
 
 @app.post("/tweak_parameters")
