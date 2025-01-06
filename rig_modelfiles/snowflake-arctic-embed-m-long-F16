@@ -1,4 +1,0 @@
-FROM ./snowflake-arctic-embed-m-long-F16.gguf
-TEMPLATE """"""
-
-SYSTEM """"""

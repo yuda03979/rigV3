@@ -68,10 +68,14 @@ docker-compose --version
 output: ```Docker Compose version v2.29.1```
 ### Local Development
 Navigate to the project directory and run:
+
+```bash
+docker build -t rig .
+```
 ```bash
 docker compose build
 ```
-```angular2html
+```bash
 docker compose up
 ```
 

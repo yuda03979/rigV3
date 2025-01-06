@@ -354,7 +354,6 @@ def evaluate_func(
     return accuracy_results
 
 
-
 def write_results(rows, numerical_errors, verbal_errors, rule_name_errors, output_directory="output"):
     df_results = pd.DataFrame(rows)
     df_error_param_numerical_binary_score = pd.DataFrame(numerical_errors)
@@ -413,7 +412,8 @@ def calculate_accuracy(df):
     for metric, value in accuracy_metrics.items():
         print(f"{metric}: {value:.2%}")
 
-    return accuracy_metrics
+    accuracy_metrics_percent = {metric: f"{value:.2%}" for metric, value in accuracy_metrics.items()}
+    return accuracy_metrics_percent
 
 
 def generate_unique_filename(directory, base_name, extension="csv"):

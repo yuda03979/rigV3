@@ -31,7 +31,8 @@ class Globals:
     rag_model_name = os.getenv("RAG_MODEL_NAME")
 
     project_dir = validate_path("PROJECT_DIR")
-    rag_threshold = validate_numeric("RAG_THRESHOLD", value_type=float)
+    classification_threshold = validate_numeric("CLASSIFICATION_THRESHOLD", value_type=float)
+    classification_temperature = validate_numeric("CLASSIFICATION_TEMPERATURE", value_type=float)
     examples_rag_threshold = validate_numeric("EXAMPLES_RAG_THRESHOLD", value_type=float)
 
     # things that should be in project_dir

@@ -16,7 +16,6 @@ class AgentRuleClassifier:
     max_rules: int = 100_000
     prefix: str = "classification:\n"
     softmax: bool = True
-    softmax_temperature: float = 0
 
     def __init__(self, agent_name: str):
         self.agent_name = agent_name
@@ -28,7 +27,11 @@ class AgentRuleClassifier:
 
     @property
     def rag_threshold(self):
-        return GLOBALS.rag_threshold  # with softmax. we fail if the score is lower.
+        return GLOBALS.classification_threshold  # with softmax. we fail if the score is lower.
+
+    @property
+    def softmax_temperature(self):
+        return GLOBALS.classification_temperature
 
     def predict(self, query: str):
         start = time.time()
@@ -50,6 +53,11 @@ class AgentRuleClassifier:
             if closest_distance > self.rag_threshold:
                 succeed = True
 
+        else:
+            rules_list = [(None, None)]
+
+        response = rules_list
+
         ####################
 
         agent_message = AgentMessage(
@@ -57,7 +65,7 @@ class AgentRuleClassifier:
             agent_description=self.description,
             agent_input=query,
             succeed=succeed,
-            agent_message=rules_list[0][0],
+            agent_message=response,
             message_model=rules_list,
             infer_time=time.time() - start
         )

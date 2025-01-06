@@ -1,3 +1,4 @@
+from typing import Tuple
 from xml.sax import default_parser_list
 
 
@@ -6,7 +7,7 @@ def clean_text(text):
     return ''.join(char.lower() for char in text if char.isalnum())
 
 
-def post_processing(type_name: str, model_response: dict, schema: dict, default_rule_instance: dict) -> dict:
+def post_processing(type_name: str, model_response: dict, schema: dict, default_rule_instance: dict) -> tuple[dict, bool]:
     """
     Perform post-processing on the model response to integrate it into the rule instance.
 
@@ -50,7 +51,7 @@ def post_processing(type_name: str, model_response: dict, schema: dict, default_
         param_clean = clean_text(param)
         default_rule_instance[param] = model_response_clean.get(param_clean)
 
-    return default_rule_instance
+    return default_rule_instance, half_nulls(model_response_clean)
 
 
 def normalize_empty_value(value: str) -> str:
@@ -110,3 +111,14 @@ def correct_numerical_values(schema: dict, model_response: dict) -> dict:
                 model_response[key] = "null"
 
     return model_response
+
+
+def half_nulls(model_response: dict) -> bool:
+    """
+    If 50% or more of the model response values are null, return True; otherwise, return False.
+
+    :param model_response: dict of the model response (NOT rule instance)
+    :return: bool
+    """
+    return sum(1 for value in model_response.values() if value is None or value == 'null') > len(model_response) / 2
+

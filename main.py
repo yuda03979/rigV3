@@ -1,4 +1,4 @@
-from src.rule_instance_generator import Rig
+from src.rig import Rig
 from fastapi import FastAPI
 from dotenv import find_dotenv, load_dotenv
 import os

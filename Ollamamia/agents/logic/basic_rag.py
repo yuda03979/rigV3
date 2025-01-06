@@ -50,7 +50,7 @@ class BasicRag:
             query_embedding: list[float],
             *,
             softmax: bool = True,
-            temperature: float = 0
+            temperature: float = 1.0
     ):
         """
         Classifies a free-form sample to the closest rule_type.
