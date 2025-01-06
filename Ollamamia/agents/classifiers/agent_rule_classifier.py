@@ -14,7 +14,7 @@ class AgentRuleClassifier:
     task = "embed"
 
     max_rules: int = 100_000
-    prefix: str = "classification: \n"
+    prefix: str = "classification:\n"
     softmax: bool = True
     softmax_temperature: float = 0
 
@@ -35,7 +35,6 @@ class AgentRuleClassifier:
 
         # agent logic
         ####################
-        query = self.prefix + query
         query_embeddings: list[float] = MODELS_MANAGER[self.model_nickname].infer(query)[0]
         rules_list = self.basic_rag.get_close_types_names(
             query_embedding=query_embeddings,
@@ -75,7 +74,6 @@ class AgentRuleClassifier:
             rule_name: str,
             query_embeddings: list[float]
         """
-        query_to_embed = self.prefix + query_to_embed
         query_embeddings: list[float] = MODELS_MANAGER[self.model_nickname].infer(query_to_embed)[0]
         success, index = self.basic_rag.add_sample(sample_id=rule_name, sample_embeddings=query_embeddings)
         return success, index, rule_name, query_embeddings

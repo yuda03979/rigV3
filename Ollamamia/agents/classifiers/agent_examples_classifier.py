@@ -16,7 +16,7 @@ class AgentExamplesClassifier:
     max_examples: int = 100_000
     prefix: str = "classification: \n"
     num_examples: int = 100_000
-    softmax: bool = True
+    softmax: bool = False
     softmax_temperature: float = 0
 
     def __init__(self, agent_name: str):
@@ -37,19 +37,17 @@ class AgentExamplesClassifier:
         # agent logic
         ####################
 
-        query = self.prefix + query
         query_embeddings: list[float] = MODELS_MANAGER[self.model_nickname].infer(query)[0]
         rules_list = self.basic_rag.get_close_types_names(
             query_embedding=query_embeddings,
             softmax=self.softmax,
             temperature=self.softmax_temperature
         )
+
         if not rules_list or len(rules_list) < 2:
-            succeed = False
             example1 = None
             example2 = None
         else:
-            succeed = True
             example1 = rules_list[0][0]
             example2 = rules_list[1][0]
 
@@ -59,7 +57,7 @@ class AgentExamplesClassifier:
             agent_name=self.agent_name,
             agent_description=self.description,
             agent_input=query,
-            succeed=succeed,
+            succeed=True,
             agent_message=[example1, example2],
             message_model=str(rules_list),
             infer_time=time.time() - start
@@ -67,7 +65,6 @@ class AgentExamplesClassifier:
         return agent_message
 
     def add_example(self, example: str) -> tuple[bool, int | None, str | None, list[float] | None]:
-        example = self.prefix + example
         example_embeddings: list[float] | None = MODELS_MANAGER[self.model_nickname].infer(example)[0]
         other_examples = self.basic_rag.get_close_types_names(
             query_embedding=example_embeddings,
@@ -79,7 +76,7 @@ class AgentExamplesClassifier:
             success, index = self.basic_rag.add_sample(sample_id=example, sample_embeddings=example_embeddings)
             return success, index, example, example_embeddings
         else:
-            print("there's similar examples already. no action perform.")
+            # print("there's similar examples already. no action perform.")
             return False, None, example, example_embeddings
 
     def add_exampleS(self, examples: list[str]) -> tuple[list[str], list[list[float]]]:

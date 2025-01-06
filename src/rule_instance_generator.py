@@ -55,15 +55,13 @@ class Rig:
         #######
         # get examples
         agent_message: pydantic.BaseModel = self.agents_store[GLOBALS.examples_finder_agent:free_text]
-        if not agent_message.succeed:
-            example1 = None
-            example2 = None
-        else:
-            example1 = agent_message.agent_message[0]
-            example2 = agent_message.agent_message[1]
 
-            # making the examples
+        example1 = agent_message.agent_message[0]
+        example2 = agent_message.agent_message[1]
 
+        if example1 is not None or example2 is not None:
+            print(example1)
+            print(example2)
             example1_free_text, example1_schema, example1_output = self.db_examples.get_example(example1)
             example2_free_text, example2_schema, example2_output = self.db_examples.get_example(example2)
 
@@ -77,14 +75,13 @@ class Rig:
             query=free_text,
             schema=str(schema),
             rule_name=rule_name,
-            example1=str(example1),
-            example2=str(example2),
+            example1=example1,
+            example2=example2,
             description=str(description)
         )]
 
         agents_flow: pydantic.BaseModel = self.agents_store.get_agents_flow()
         response = agents_flow.model_dump()
-        print(response)
         response["rule_name"] = rule_name
         response["rule_instance_params"] = agents_flow.agents_massages[-1].agent_message
 
@@ -173,7 +170,6 @@ class Rig:
                 if index:
                     self.db_examples.df.loc[index] = example
                 self.db_examples.save_db()
-
         else:
             pass
 
