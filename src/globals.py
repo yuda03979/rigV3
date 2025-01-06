@@ -44,3 +44,5 @@ class Globals:
 
 
 GLOBALS = Globals()
+
+print(Globals.__dict__)

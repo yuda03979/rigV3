@@ -1,7 +1,7 @@
 from typing import Optional, Sequence, Literal, Union
 from pydantic.json_schema import JsonSchemaValue
 from ..globals_dir.utils import CustomBasePydantic
-
+import ollama
 
 class ConfigOptions(CustomBasePydantic):
     numa: Optional[bool] = None
@@ -43,6 +43,7 @@ class OllamaModelConfig(CustomBasePydantic):
     task: Literal["embed", "generate"]
 
     options: ConfigOptions = ConfigOptions()
+    client: type = ollama.Client("http://localhost:11434")
     prefix: str = ''  # for embed models
     suffix: str = ''
     system: Optional[str] = None
