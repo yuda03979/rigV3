@@ -117,11 +117,12 @@ class AgentMessage(CustomBasePydantic):
     agent_name: str
     agent_description: str
     succeed: bool
-    agent_input: str | dict | list | tuple
-    agent_message: str | dict | list | tuple
-    message_model: str | list
+    agent_input: Any
+    agent_message: Any
+    message_model: Any
     dateTtime: datetime = Field(default_factory=datetime.now, alias="dateTtime")
     infer_time: float | None = None
+    additional_data: Any = None
 
 
 class AgentsFlow(CustomBasePydantic):

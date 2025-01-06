@@ -112,14 +112,16 @@ class RuleInstanceGenerator:
         )]
 
         agents_flow: pydantic.BaseModel = agents_manager.get_agents_flow()
-        print(agents_flow.agents_massages[-1].agent_message)
+
+        # print(agent_message)
+
         response = agents_flow.model_dump()
         response["rule_name"] = rule_name
-        response["rule_instance_params"] = agents_flow.agents_massages[-1].agent_message[0]
+        response["rule_instance_params"] = agent_message.agent_message[0]
+        response["confidence"] = agent_message.agent_message[1]
         response["error_message"] = ""
 
         success = not agents_flow.is_error
-
         return response, success
 
     def __post_processing(self, response, rule_name, schema, default_rule_instance):

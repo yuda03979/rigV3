@@ -54,12 +54,14 @@ def feedback(rig_response: dict, good: bool) -> bool:
 def evaluate(
         start_point: int = 0,
         end_point: int | None = 2,  # -1 - all the data
+        jump: int | None = 1,
         sleep_time_each_10_iter: int = 30,
         batch_size: int = 250
 ) -> dict:
     return rig.evaluate(
         start_point=int(start_point),
         end_point=end_point,  # None - all the data
+        jump=jump,
         sleep_time_each_10_iter=int(sleep_time_each_10_iter),
         batch_size=int(batch_size)
     )

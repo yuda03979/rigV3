@@ -122,6 +122,7 @@ class Rig:
             self,
             start_point=0,
             end_point=2,  # -1 - all the data
+            jump=1,
             sleep_time_each_10_iter=30,
             batch_size=250
     ):
@@ -132,6 +133,7 @@ class Rig:
             output_directory=GLOBALS.evaluation_output_dir,
             start_point=start_point,
             end_point=end_point,  # -1 all the data (almost...)
+            jump=jump,
             sleep_time_each_10=sleep_time_each_10_iter,
             batch_size=batch_size
         )

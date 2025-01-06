@@ -67,15 +67,39 @@ class AsyncAgentGenerateSchema:
         response, succeed = get_dict(response_model)
         response_2th, succeed_2th = get_dict(response_model_2th)
 
+        additional_data = dict(
+            model1=dict(dict_response=response, succeed=succeed, str_response=response_model).copy(),
+            model2=dict(dict_response=response_2th, succeed=succeed_2th, str_response=response_model_2th),
+            response="model1"
+        )
+
+        #######
+        # confidence
+
+        confidence = -1
+        if succeed_2th and succeed:
+            if str(response).lower() == str(response_2th).lower():
+                confidence = 1
+            else:
+                confidence = 0
+
+        # if the second model succeed and the first didn't we overwrite the first one:
+        elif succeed_2th and not succeed:
+            response = response_2th
+            succeed = succeed_2th
+            additional_data["response"] = "model2"
+
+        ########
 
         agent_message = AgentMessage(
             agent_name=self.agent_name,
             agent_description=self.description,
             agent_input=query,
             succeed=succeed,
-            agent_message=[response, response_2th],
-            message_model=response_model,
-            infer_time=time.time() - start
+            agent_message=[response, confidence],
+            message_model=[response_model, response_model_2th],
+            infer_time=time.time() - start,
+            additional_data=additional_data
         )
         return agent_message
 
