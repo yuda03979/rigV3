@@ -383,11 +383,11 @@ def calculate_and_save_accuracy(rows, output_directory="output"):
     with open(file_path, "w") as file:
         file.write("without classification mistakes:\n Average Accuracy Metrics:\n")
         for metric, value in accuracy_results.items():
-            file.write(f"{metric}: {value:.2%}\n")
+            file.write(f"{metric}: {value}\n")
 
         file.write("with all the data:\n Average Accuracy Metrics:\n")
         for metric, value in accuracy_results_2.items():
-            file.write(f"{metric}: {value:.2%}\n")
+            file.write(f"{metric}: {value}\n")
 
     return accuracy_results_2
 

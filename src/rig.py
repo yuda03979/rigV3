@@ -1,5 +1,5 @@
 from .rule_instance_generator import RuleInstanceGenerator
-from Ollamamia.src.agents_store import AgentsStore
+from Ollamamia.agents_store import AgentsStore
 from .globals import GLOBALS
 from .databases import DbRules, DbExamples
 from .new_type import AddNewTypes
@@ -21,7 +21,9 @@ class Rig:
 
         self.agents_store[GLOBALS.rule_classifier_agent] = "AgentRuleClassifier"
         self.agents_store[GLOBALS.examples_finder_agent] = "AgentExamplesClassifier"
-        self.agents_store[GLOBALS.rule_instance_generator_agent] = "AgentGenerateSchema"
+        # self.agents_store[GLOBALS.rule_instance_generator_agent] = "AgentGenerateSchema"
+        self.agents_store[GLOBALS.rule_instance_generator_agent] = "AsyncAgentGenerateSchema"
+
 
         # add existing rules into agent
         rules_names = self.db_rules.df["rule_name"].tolist()

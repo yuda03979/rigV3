@@ -28,6 +28,7 @@ class RuleInstanceGenerator:
         #######
         # in case of wrong classification:
         if mismatch_rule_name and len(rule_names_list) >= 2:
+            print(rule_names_list)
             rule_name = rule_names_list[1][0]
             response2, mismatch_rule_name = self.__generate(agents_manager, db_rules, db_examples, rule_name, free_text)
 
@@ -111,9 +112,10 @@ class RuleInstanceGenerator:
         )]
 
         agents_flow: pydantic.BaseModel = agents_manager.get_agents_flow()
+        print(agents_flow.agents_massages[-1].agent_message)
         response = agents_flow.model_dump()
         response["rule_name"] = rule_name
-        response["rule_instance_params"] = agents_flow.agents_massages[-1].agent_message
+        response["rule_instance_params"] = agents_flow.agents_massages[-1].agent_message[0]
         response["error_message"] = ""
 
         success = not agents_flow.is_error

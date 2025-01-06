@@ -1,9 +1,8 @@
-from ...globals_dir.models_manager import MODELS_MANAGER
-from ...globals_dir.utils import AgentMessage
-from ..logic.basic_rag import BasicRag
-from src.globals import GLOBALS
+from Ollamamia.globals_dir.models_manager import MODELS_MANAGER
+from Ollamamia.globals_dir.utils import AgentMessage
+from Ollamamia.agents.logic.basic_rag import BasicRag
 import time
-
+from src.globals import GLOBALS
 
 class AgentExamplesClassifier:
     description = """rag implemented for elta, suitable for small - medium size db. """

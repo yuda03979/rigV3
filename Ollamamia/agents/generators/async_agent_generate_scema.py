@@ -1,17 +1,17 @@
-from Ollamamia.globals_dir.models_manager import MODELS_MANAGER
-from Ollamamia.globals_dir.utils import get_dict
-from Ollamamia.globals_dir.utils import AgentMessage
-from src.globals import GLOBALS
+from Ollamamia.globals_dir.models_manager import ASYNC_MODEL_MANAGER
+from Ollamamia.globals_dir.utils import get_dict, AgentMessage
+import asyncio
 import time
 
 
-class AgentGenerateSchema:
-    description = """given schema and free text, (and maybe some more parameters - depends on the prompt you choose
-    the agent job is to return the values from the free text according to the schema"""
+class AsyncAgentGenerateSchema:
+    description = """given schema and free text, the agent job is to return the values from the free text according to the schema"""
 
-    model_nickname = str(MODELS_MANAGER.get_num_models())
+    model_1th_nickname = str(ASYNC_MODEL_MANAGER.get_num_models())
+    model_2th_nickname = f"2th_{str(ASYNC_MODEL_MANAGER.get_num_models())}"
     engine = "ollama"
-    model_name = GLOBALS.generation_model_name  # "gemma-2-2b-it-Q8_0:rig"
+    model_1th_name = "gemma-2-2b-it-Q8_0:rig"
+    model_2th_name = "Falcon3-3B-Instruct-q4_k_m:rig"
     model_type = "gemma2"
     task = "generate"
 
@@ -22,19 +22,23 @@ class AgentGenerateSchema:
 
     def __init__(self, agent_name):
         self.agent_name = agent_name
-        self.model_nickname = f"{agent_name}_{self.model_nickname}"
+        self.model_1th_nickname = f"{agent_name}_{self.model_1th_nickname}"
         self.prompt_func = Prompts(self.engine, self.model_type).prompt_func
-        # initializing the model
-        MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]
-        MODELS_MANAGER[self.model_nickname].config.options.num_ctx = self.num_ctx
-        MODELS_MANAGER[self.model_nickname].config.options.stop = self.stop
-        MODELS_MANAGER[self.model_nickname].config.options.temperature = self.temperature
-        MODELS_MANAGER[self.model_nickname].config.options.top_p = self.top_p
 
-    def predict(
-            self,
-            kwargs  # need change. i did it because it get dict
-    ):
+        # Initialize models
+        self._init_models()
+
+    def _init_models(self):
+        for nickname, model_name in [(self.model_1th_nickname, self.model_1th_name),
+                                     (self.model_2th_nickname, self.model_2th_name)]:
+            ASYNC_MODEL_MANAGER[nickname] = [self.engine, model_name, self.task]
+            model_config = ASYNC_MODEL_MANAGER[nickname].config.options
+            model_config.num_ctx = self.num_ctx
+            model_config.stop = self.stop
+            model_config.temperature = self.temperature
+            model_config.top_p = self.top_p
+
+    async def predict_async(self, kwargs):
         query: str = kwargs["query"]
         schema: dict = kwargs["schema"]
         rule_name: str | None = kwargs.get("rule_name")
@@ -53,26 +57,40 @@ class AgentGenerateSchema:
             example2=example2,
         )
 
-        response_model = MODELS_MANAGER[self.model_nickname].infer(prompt) + "}"
+        # Run model inferences in parallel
+        responses = await asyncio.gather(
+            ASYNC_MODEL_MANAGER.infer_async(self.model_1th_nickname, prompt),
+            ASYNC_MODEL_MANAGER.infer_async(self.model_2th_nickname, prompt)
+        )
+
+        response_model, response_model_2th = [r + "}" for r in responses]
         response, succeed = get_dict(response_model)
+        response_2th, succeed_2th = get_dict(response_model_2th)
+
 
         agent_message = AgentMessage(
             agent_name=self.agent_name,
             agent_description=self.description,
             agent_input=query,
             succeed=succeed,
-            agent_message=response,
+            agent_message=[response, response_2th],
             message_model=response_model,
             infer_time=time.time() - start
         )
         return agent_message
 
+    # Keep sync version for compatibility
+    def predict(self, kwargs):
+        return asyncio.run(self.predict_async(kwargs))
+
+
+# Prompts class remains unchanged
 
 class Prompts:
 
-    def __init__(self, engine, model_name):
+    def __init__(self, engine, model_1th_name):
         self.prompt_func = None
-        if model_name == "gemma2":
+        if model_1th_name == "gemma2":
             self.prompt_func = self.prompt_gemma2
 
     @staticmethod

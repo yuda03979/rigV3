@@ -1,6 +1,6 @@
-from ...globals_dir.models_manager import MODELS_MANAGER
-from ...globals_dir.utils import AgentMessage
-from ..logic.basic_rag import BasicRag
+from Ollamamia.globals_dir.models_manager import MODELS_MANAGER
+from Ollamamia.globals_dir.utils import AgentMessage
+from Ollamamia.agents.logic.basic_rag import BasicRag
 from src.globals import GLOBALS
 import time
 

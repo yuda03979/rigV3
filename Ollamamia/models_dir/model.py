@@ -1,5 +1,7 @@
 from typing import Literal
-from .ollama_model import OllamaBaseModel
+
+from Ollamamia.models_dir.async_base import AsyncMixin
+from Ollamamia.models_dir.ollama_model import OllamaBaseModel, AsyncOllamaBaseModel
 
 
 class Model:
@@ -35,3 +37,24 @@ class Model:
 
     def unload(self):
         pass
+
+
+
+class AsyncModel(Model, AsyncMixin):
+    def __init__(self, engine: Literal["ollama", "openai"], model_name: str, task: Literal["generate", "embed"]):
+        super().__init__(engine, model_name, task)
+
+    def init_model(self):
+        if self.engine == "ollama":
+            self.model = AsyncOllamaBaseModel(model_name=self.model_name, task=self.task)
+            self.config = self.model.config
+        elif self.engine == "openai":
+            pass
+
+    async def infer_async(self, query):
+        if hasattr(self.model, 'infer_async'):
+            response = await self.model.infer_async(query)
+        else:
+            response = await self._run_async(self.model.infer, query)
+        self._manage_logs(response)
+        return response

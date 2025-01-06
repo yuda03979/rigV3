@@ -1,6 +1,8 @@
 from typing import Literal
-from ..models_dir.model import Model
-from ..globals_dir.utils import handle_errors
+
+from Ollamamia.models_dir.async_base import AsyncMixin
+from Ollamamia.models_dir.model import Model, AsyncModel
+from Ollamamia.globals_dir.utils import handle_errors
 
 
 class ModelsManager:
@@ -60,3 +62,17 @@ class ModelsManager:
         if not model_nickname in self.models.keys():
             handle_errors(e=f"model_nickname: {model_nickname} do not exist. \nexisting nicknames: {list(self.models.keys())}")
         return self.models.get(model_nickname)
+
+
+class AsyncModelsManager(ModelsManager, AsyncMixin):
+    def load(self, model_nickname: str, *, engine: Literal["ollama", "openai"],
+             model_name: str, task: Literal["generate", "embed"]):
+        if model_nickname in self.models:
+            print(f"model_nickname {model_nickname} already exists. overwriting...")
+        self.models[model_nickname] = AsyncModel(engine=engine, model_name=model_name, task=task)
+
+    async def infer_async(self, model_nickname, query):
+        if model_nickname not in self.models:
+            handle_errors(
+                f"model_nickname: {model_nickname} doesn't exist. \nexisting nicknames: {list(self.models.keys())}")
+        return await self.models[model_nickname].infer_async(query)

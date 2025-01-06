@@ -1,9 +1,10 @@
 import time
 
-from ..agents.classifiers.agent_rule_classifier import AgentRuleClassifier
-from ..agents.generators.agent_generate_schema import AgentGenerateSchema
-from ..agents.classifiers.agent_examples_classifier import AgentExamplesClassifier
-from ..globals_dir.utils import AgentsFlow
+from Ollamamia.agents.classifiers.agent_rule_classifier import AgentRuleClassifier
+from Ollamamia.agents.classifiers.agent_examples_classifier import AgentExamplesClassifier
+from Ollamamia.agents.generators.agent_generate_schema import AgentGenerateSchema
+from Ollamamia.agents.generators.async_agent_generate_scema import AsyncAgentGenerateSchema
+from Ollamamia.globals_dir.utils import AgentsFlow
 
 
 class AgentsStore:
@@ -13,9 +14,9 @@ class AgentsStore:
         self.agents_available = {
             "AgentRuleClassifier": AgentRuleClassifier,
             "AgentGenerateSchema": AgentGenerateSchema,
-            "AgentExamplesClassifier": AgentExamplesClassifier
+            "AgentExamplesClassifier": AgentExamplesClassifier,
+            "AsyncAgentGenerateSchema": AsyncAgentGenerateSchema
         }
-
         self.store = ""  # enum for available models
         self.agents_flow = None
         self.start = None
