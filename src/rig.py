@@ -25,7 +25,6 @@ class Rig:
         self.agents_manager[GLOBALS.examples_finder_agent] = AgentsStore.agent_examples_classifier
         self.agents_manager[GLOBALS.rule_instance_generator_agent] = AgentsStore.async_agent_generate_schema
 
-
         # add existing rules into agent
         rules_names = self.db_rules.df["rule_name"].tolist()
         embedded_rules = self.db_rules.df["embeddings"].tolist()
@@ -99,23 +98,16 @@ class Rig:
 
         rig_response["good"] = good
 
-        # Only proceed if good is None
-        if good is None:
-            query_value = rig_response["query"]
+        query_value = rig_response["query"]
+        new_row = [str(rig_response.get(col, None)) for col in self.db_unknown.columns]
 
-            # Create a row with values for all columns, using None for missing columns
-            new_row = [str(rig_response.get(col, None)) for col in self.db_unknown.columns]
+        query_mask = self.db_unknown.df["query"] == query_value  # Check if query already exists in database
 
-            # Check if query already exists in database
-            query_mask = self.db_unknown.df["query"] == query_value
-
-            if query_mask.any():
-                # Update existing row if query found
-                self.db_unknown.df.loc[query_mask] = new_row
-            else:
-                # Append new row if query not found
-                self.db_unknown.df.loc[len(self.db_unknown.df)] = new_row
-            self.db_unknown.save_db()
+        if query_mask.any():  # if already exist - update
+            self.db_unknown.df.loc[query_mask] = new_row
+        else:
+            self.db_unknown.df.loc[len(self.db_unknown.df)] = new_row
+        self.db_unknown.save_db()
         if good:
             example = dict(
                 id=rig_response["query"],
