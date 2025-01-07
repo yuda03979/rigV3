@@ -11,25 +11,22 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-        # Install Docker and WSL 2
-      - name: Install Docker and WSL 2
+      - name: Install Docker Engine
         run: |
-          wsl --install
-          choco install docker-desktop --confirm
+          choco install docker-engine --confirm
+          choco install wsl2 --confirm
         shell: powershell
+          
+          # Enable and Start Docker Daemon (Headless)
+          - name: Start Docker Daemon
+            run: |
+              Start-Service docker
+              wsl --set-default-version 2
+            shell: powershell
 
-        # Ensure Docker is set to Linux containers
-      - name: Set Docker to Linux Containers
-        run: |
-          Start-Process -Wait -NoNewWindow -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe"
-          Start-Sleep -s 10
-          Stop-Process -Name "Docker Desktop"
-          wsl --set-default-version 2
-        shell: powershell
-
-        # Verify Docker Installation
-      - name: Verify Docker Installation
-        run: docker version
+          # Verify Docker Installation
+          - name: Verify Docker
+            run: docker version
 
       # Create necessary directories
       - name: Create directories
