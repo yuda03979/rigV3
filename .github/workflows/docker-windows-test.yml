@@ -34,7 +34,7 @@ jobs:
         shell: cmd
 
       - name: Build image
-        run: docker build --platform linux/amd64 -t rig
+        run: docker build --platform linux/amd64 -t rig .
 
       - name: Run docker compose
         run: docker compose up -d
