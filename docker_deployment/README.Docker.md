@@ -104,5 +104,5 @@ output:
 {}
 
 ```
-and the same all the functions. see how to docker.ipynb
+and the same all the functions. see how_to_docker.ipynb
 ```
