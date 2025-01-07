@@ -31,6 +31,11 @@ rag:
 ```
 https://huggingface.co/yixuan-chia/snowflake-arctic-embed-m-long-GGUF/resolve/main/snowflake-arctic-embed-m-long-F16.gguf?download=true
 ```
+
+validation:
+```
+https://huggingface.co/tiiuae/Falcon3-3B-Instruct-GGUF/resolve/main/Falcon3-3B-Instruct-q4_k_m.gguf?download=true
+```
 and place them in the rig_modelfile directory (or change the path inside the modelfile. for docker its better they're together. and you can delete the file after - just keep the directory) 
 
 but you also can download the models from the drive (there is also the modelfiles)
