@@ -11,6 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Enable WSL 2 and Switch to Linux Containers
+        run: |
+          wsl --install
+          wsl --set-default-version 2
+          & 'C:\Program Files\Docker\Docker\DockerCli.exe' -SwitchLinuxEngine
+        shell: powershell
+
       # Create necessary directories
       - name: Create directories
         run: |
