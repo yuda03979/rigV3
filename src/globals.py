@@ -29,7 +29,7 @@ class Globals:
     rule_instance_generator_agent = "rule_instance_generator"
 
     generation_model_name = os.getenv("GENERATION_MODEL_NAME")
-    generation_model2_name = os.getenv("GENERATION_MODEL2_NAME")
+    validation_model_name = os.getenv("VALIDATION_MODEL_NAME")
     rag_model_name = os.getenv("RAG_MODEL_NAME")
 
     project_dir = validate_path("PROJECT_DIR")
@@ -46,5 +46,3 @@ class Globals:
 
 
 GLOBALS = Globals()
-
-print(Globals.__dict__)
