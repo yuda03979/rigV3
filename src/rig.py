@@ -87,11 +87,13 @@ class Rig:
 
     def tweak_parameters(
             self,
-            rag_threshold: float,
-            examples_rag_threshold: float
+            classification_threshold: float = GLOBALS.classification_threshold,
+            classification_temperature: float = GLOBALS.classification_temperature,
+            examples_rag_threshold: float = GLOBALS.examples_rag_threshold
     ) -> bool:
-        GLOBALS.rag_threshold = rag_threshold
+        GLOBALS.classification_threshold = classification_threshold
         GLOBALS.examples_rag_threshold = examples_rag_threshold
+        GLOBALS.classification_temperature = classification_temperature
         return True
 
     def feedback(self, rig_response: dict, good: bool = None) -> bool:

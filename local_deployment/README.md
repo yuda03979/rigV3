@@ -64,14 +64,8 @@ ollama serve
 -----------
 # how to use
 ```python
-from RIG.rule_instance_generator import RuleInstanceGenerator
-```
-
-
-```python
-# (required means that you can chnge it in globlas.py and it will not be required.)
-
-rig = RuleInstanceGenerator()
+from src.rig import Rig
+rig = Rig()
 ```
 
 ```
@@ -79,42 +73,34 @@ rig.add_rule_types_from_folder()
 ```
 ```python
 # get list of existing rule types:
-rig.get_rule_types_names()
+rule_names = rig.get_rule_types_names()  # return list
 ```
- ['missile malfunction',
-  'tactical error',
-  'missile failure',
-  'launch failure',
-  'platoon report',
-  'moral failure',
-  'encryption flaw',
-  'espionage suspect',
-  'corruption scandal',
-  'betrayal risk',
-  'leadership breakdown',
-  'radar error monitoring',
-  'personnel sabotage',
-  'satellite disruption',
-  'bomb failure',
-  'defection threat',
-  'attack overview',
-  'fire control',
-  'disloyal soldier',
-  'equipment malfunction',
-  'command incompetence',
-  'supply shortage',
-  'system failure',
-  'covert agent',
-  'suspected person']
+
+```
+rule_name = rule_names[0]  # Get the first rule name from the list
+rule_details = rig.get_rule_details(rule_name)
+```
 
 
+### add rules
+```
+new_rules: list[dict] = [
+    rule_1, rule_2
+]
+
+rig.set_rules(rule_types=new_rules)  # true or false
+```
+
+```
+new_rule = {}
+rig.add_rule(rule_type=new_rule)
+```
 
 ## get rule instance from free text
 
 
 ```python
 free_text = "Alright, let's dive in. We're looking at 'Exploitation Scenario 789'. The crux of the matter is, there's this individual, going by the ID 'XYZ789', who's been involved in an exploitation failure. The level of seriousness? I'd estimate about three. The breach? Fairness. Not good, not good at all. When did we spot this? Well, the detection time isn't clear. And the context? Personal. Yes, it's a pretty serious situation"
-
 response = rig.get_rule_instance(free_text) # return dictionary
 ```
 
@@ -157,20 +143,21 @@ output:
      'presetId': '00000000-0000-0000-0000-000000000000'}
 
 
-
+```python
+rig.tweak_parameters(classification_threshold=0.05) 
+```
 
 ```python
 # giving us feedback on the response. it will help us to improve the project. it stores in .logs file, without internet connection.
-rig.feedback(rig_response=response, good=True)
+rig.feedback(rig_response=response, good=False)
 ```
-thank you :)
-
 
 ## run evaluation:
 ```
 rig.evaluate(
     start_point=0,
     end_point=2,  # -1 or None - all the data
+    jump=1,  # how many it skip and not evaluate
     sleep_time_each_10_iter=5,
     batch_size=250
 )
