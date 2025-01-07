@@ -10,10 +10,11 @@ class RuleInstanceGenerator:
 
     def predict(self, agents_manager, db_rules, db_examples, free_text):
         response = self.generate(agents_manager, db_rules, db_examples, free_text)
-        response["confidence"] = -2
+
         if response.get("confidence") == -2:  # we couldn't classify the rule
             summarize_query = agents_manager[GLOBALS.summarization_agent:free_text].agent_message
             response = self.generate(agents_manager, db_rules, db_examples, free_text, summarize_query)
+
         return response
 
     def generate(self, agents_manager, db_rules, db_examples, free_text, summarize_query=None):
