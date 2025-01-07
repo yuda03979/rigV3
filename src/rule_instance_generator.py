@@ -28,17 +28,25 @@ class RuleInstanceGenerator:
         #######
         # in case of wrong classification:
         if mismatch_rule_name and len(rule_names_list) >= 2:
-            print(rule_names_list)
+            print(rule_names_list[:2])
             rule_name = rule_names_list[1][0]
             response2, mismatch_rule_name = self.__generate(agents_manager, db_rules, db_examples, rule_name, free_text)
 
             if not mismatch_rule_name:
+                print("solved")
                 response = response2
             else:
+                print("unsolved 2th attempt")
+                response["confidence"] = -1
                 response["is_error"] = True
                 response["error_message"] = ("since more then 50% of the fields are None/'null', we assume its "
-                                             "classification mismatch, and we can't solv it")
-
+                                             "classification mismatch, and we can't solve it")
+        elif mismatch_rule_name and len(rule_names_list) < 2:
+            print("unsolved 1th attempt")
+            response["confidence"] = -2
+            response["is_error"] = True
+            response["error_message"] = ("since more then 50% of the fields are None/'null', we assume its "
+                                         "classification mismatch, and we can't solve it")
         return response
 
     def __generate(self, agents_manager, db_rules, db_examples, rule_name, free_text):

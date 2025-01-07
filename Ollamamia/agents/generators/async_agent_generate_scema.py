@@ -2,7 +2,7 @@ from Ollamamia.globals_dir.models_manager import ASYNC_MODEL_MANAGER
 from Ollamamia.globals_dir.utils import get_dict, AgentMessage
 import asyncio
 import time
-
+from src.globals import GLOBALS
 
 class AsyncAgentGenerateSchema:
     description = """given schema and free text, the agent job is to return the values from the free text according to the schema"""
@@ -10,8 +10,8 @@ class AsyncAgentGenerateSchema:
     model_1th_nickname = str(ASYNC_MODEL_MANAGER.get_num_models())
     model_2th_nickname = f"2th_{str(ASYNC_MODEL_MANAGER.get_num_models())}"
     engine = "ollama"
-    model_1th_name = "gemma-2-2b-it-Q8_0:rig"
-    model_2th_name = "Falcon3-3B-Instruct-q4_k_m:rig"
+    model_1th_name = GLOBALS.generation_model_name  # "gemma-2-2b-it-Q8_0:rig"
+    model_2th_name = GLOBALS.generation_model2_name  # "Falcon3-3B-Instruct-q4_k_m:rig"
     model_type = "gemma2"
     task = "generate"
 

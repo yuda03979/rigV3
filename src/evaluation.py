@@ -175,12 +175,12 @@ def predict(self, free_text, row_id):
     # print("model_response =",model_response )
     if model_response["is_error"] == True:
         print("error: ", model_response)
-        return model_response, False
+        return model_response["rule_instance"], model_response, False
     rule_instance = model_response["rule_instance"]
     response = rule_instance["params"]
     response["ruleInstanceName"] = rule_instance["ruleInstanceName"]
     response["severity"] = rule_instance["severity"]
-    return response, model_response
+    return response, model_response, True
 
 
 # Evaluation Function
@@ -240,10 +240,10 @@ def evaluate_func(
             rig_response = {}
             try:
                 # Predict response
-                response, rig_response = predict(self, free_text, row_id)
-                if not rig_response:
+                response, rig_response, success = predict(self, free_text, row_id)
+                if not success:
                     errors = f"Error: rig_response is None,{response}"
-                    print(errors)
+                    raise
 
                 else:
                     # print(i, rig_response)
@@ -323,7 +323,7 @@ def evaluate_func(
                 }
                 rows.append(new_row)
             except Exception as e:
-                raise Exception(e)
+                # raise Exception(e)
                 print(f"Error processing row {i + 1}, free_text: {free_text}, Error: {e}")
                 errors = f"{errors}, Error: {e}"
 

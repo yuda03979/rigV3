@@ -10301,10 +10301,10 @@ TeacherD2Q2,"We need to put together a Network Security Breach instance, dealing
     ""ruleInstanceName"": ""network security breach"",
     ""severity"": ""5"",
     ""Subject expertise"": ""cybersecurity"",
-    ""Classroom management"": ""n/a"",
+    ""Classroom management"": ""null"",
     ""Communication skills"": ""excellent"",
     ""Adaptability"": ""moderately adaptable"",
-    ""Lesson planning"": ""n/a"",
+    ""Lesson planning"": ""null"",
     ""Student engagement"": ""highly engaging""
 }",Teacher,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 TeacherD2Q3,"Create a record with rule instance name 'network security breach'. In the Subject expertise field, specify cybersecurity. The Classroom management should be n/a, and the Communication skills field must show excellent. Enter moderately adaptable for the Adaptability, n/a for the Lesson planning value, and highly engaging for the Student engagement rating. Specify five for the severity rating.","{
