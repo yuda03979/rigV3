@@ -12,7 +12,7 @@ class AsyncAgentGenerateSchema:
     model_2th_nickname = f"AsyncAgentGenerateSchema_{GLOBALS.validation_model_name}"
     engine = "ollama"
     model_1th_name = GLOBALS.generation_model_name  # "gemma-2-2b-it-Q8_0:rig"
-    model_2th_name = GLOBALS.generation_model2_name  # "Falcon3-3B-Instruct-q4_k_m:rig"
+    model_2th_name = GLOBALS.validation_model_name  # "Falcon3-3B-Instruct-q4_k_m:rig"
     model_type = "gemma2"
     task = "generate"
 
