@@ -10,7 +10,6 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-
       - name: Install Docker Engine
         run: |
           choco install docker-engine --confirm
