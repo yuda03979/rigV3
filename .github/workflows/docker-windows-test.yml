@@ -10,23 +10,25 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-        # doing something
+
+# Install Docker Engine (No GUI)
       - name: Install Docker Engine
         run: |
           choco install docker-engine --confirm
           choco install wsl2 --confirm
         shell: powershell
-          
-          # Enable and Start Docker Daemon (Headless)
-          - name: Start Docker Daemon
-            run: |
-              Start-Service docker
-              wsl --set-default-version 2
-            shell: powershell
 
-          # Verify Docker Installation
-          - name: Verify Docker
-            run: docker version
+  # Enable and Start Docker Daemon (Headless)
+      - name: Start Docker Daemon
+        run: |
+          Start-Service docker
+          wsl --set-default-version 2
+        shell: powershell
+
+# Verify Docker Installation
+      - name: Verify Docker
+        run: docker version
+
 
       # Create necessary directories
       - name: Create directories
