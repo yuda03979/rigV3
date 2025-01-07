@@ -5,7 +5,7 @@ import time
 from src.globals import GLOBALS
 
 class AgentExamplesClassifier:
-    description = """rag implemented for elta, suitable for small - medium size db. """
+    description = """rag implemented for elta, suitable for small - medium size db"""
 
     model_nickname = str(MODELS_MANAGER.get_num_models())
     engine = "ollama"

@@ -73,9 +73,6 @@ Navigate to the project directory and run:
 docker build -t rig .
 ```
 ```bash
-docker compose build
-```
-```bash
 docker compose up
 ```
 

@@ -146,7 +146,7 @@ class AgentsFlow(CustomBasePydantic):
 
 def handle_errors(e: str):
     print(e)
-    raise
+    # raise
 
 
 def get_dict(input_string):
