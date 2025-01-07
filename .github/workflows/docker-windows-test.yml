@@ -1,0 +1,45 @@
+name: Docker Windows Test
+on:
+  push:
+    branches: [ async_validation ]
+  pull_request:
+    branches: [ async_validation ]
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Create necessary directories
+      - name: Create directories
+        run: |
+          mkdir C:\data_dir
+          mkdir C:\rig_models
+          mkdir C:\rig_modelfiles
+        shell: cmd
+
+      # Create .env file with Windows paths
+      - name: Create .env file
+        run: |
+          echo PROJECT_DIR=/c/data_dir > .env
+          echo CLASSIFICATION_THRESHOLD=0.005 >> .env
+          echo CLASSIFICATION_TEMPERATURE=0.02 >> .env
+          echo EXAMPLES_RAG_THRESHOLD=0.9 >> .env
+          echo GENERATION_MODEL_NAME=gemma-2-2b-it-Q8_0:rig >> .env
+          echo GENERATION_MODEL2_NAME=Falcon3-3B-Instruct-q4_k_m:rig >> .env
+          echo RAG_MODEL_NAME=snowflake-arctic-embed-137m:rig >> .env
+          echo MODELS_DIRECTORY=/c/rig_models >> .env
+          echo GGUF_AND_MODELFILE_LOCATION=/c/rig_modelfiles >> .env
+        shell: cmd
+
+      - name: Build image
+        run: docker build -t rig .
+
+      - name: Run docker compose
+        run: docker compose up -d
+
+      # Add any other necessary steps...
+
+      - name: Cleanup
+        run: docker compose down

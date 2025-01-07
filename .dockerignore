@@ -32,4 +32,4 @@ rig_models
 **/secrets.dev.yaml
 **/values.dev.yaml
 LICENSE
-README.md
+local_deployment/README.md
