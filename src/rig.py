@@ -1,7 +1,7 @@
 from .rule_instance_generator import RuleInstanceGenerator
 from Ollamamia.agents_manager import AgentsStore, AgentsManager
 from .globals import GLOBALS
-from .databases import DbRules, DbExamples
+from .databases import DbRules, DbExamples, DbUnknowns
 from .new_type import AddNewTypes
 from .evaluation import evaluate_func
 import pandas as pd
@@ -13,6 +13,7 @@ class Rig:
 
         self.db_rules = DbRules()
         self.db_examples = DbExamples()
+        self.db_unknown = DbUnknowns()
 
         self.add_new_types = AddNewTypes()
         self.rule_instance_generator = RuleInstanceGenerator()
@@ -41,6 +42,7 @@ class Rig:
 
         response = self.rule_instance_generator.predict(self.agents_manager, self.db_rules, self.db_examples, free_text=free_text)
 
+        self.feedback(rig_response=response)
         return response
 
     def get_rules_names(self) -> list:
@@ -93,17 +95,37 @@ class Rig:
         GLOBALS.examples_rag_threshold = examples_rag_threshold
         return True
 
-    def feedback(self, rig_response: dict, good: bool) -> bool:
-        example = dict(
-            id=rig_response["query"],
-            free_text=rig_response["query"],
-            rule_name=rig_response["rule_name"],
-            schema=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "schema"].iloc[0],
-            description=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "description"].iloc[0],
-            rule_instance_params=rig_response["rule_instance_params"]
-        )
+    def feedback(self, rig_response: dict, good: bool = None) -> bool:
 
+        rig_response["good"] = good
+
+        # Only proceed if good is None
+        if good is None:
+            query_value = rig_response["query"]
+
+            # Create a row with values for all columns, using None for missing columns
+            new_row = [str(rig_response.get(col, None)) for col in self.db_unknown.columns]
+
+            # Check if query already exists in database
+            query_mask = self.db_unknown.df["query"] == query_value
+
+            if query_mask.any():
+                # Update existing row if query found
+                self.db_unknown.df.loc[query_mask] = new_row
+            else:
+                # Append new row if query not found
+                self.db_unknown.df.loc[len(self.db_unknown.df)] = new_row
+            self.db_unknown.save_db()
         if good:
+            example = dict(
+                id=rig_response["query"],
+                free_text=rig_response["query"],
+                rule_name=rig_response["rule_name"],
+                schema=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "schema"].iloc[0],
+                description=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "description"].iloc[0],
+                rule_instance_params=rig_response["rule_instance_params"]
+            )
+
             success, index, example_name, example_embeddings = self.agents_manager[GLOBALS.examples_finder_agent].add_example(
                 example["free_text"])
             if success:
@@ -113,9 +135,6 @@ class Rig:
                 if index:
                     self.db_examples.df.loc[index] = example
                 self.db_examples.save_db()
-        else:
-            pass
-
         return True
 
     def evaluate(

@@ -40,6 +40,7 @@ class Globals:
     # things that should be in project_dir
     db_rules_path = os.path.join(project_dir, "db_rules.csv")
     db_examples_path = os.path.join(project_dir, "db_examples.csv")
+    db_unknowns_path = os.path.join(project_dir, "db_unknowns.csv")
     rules_folder_path = os.path.join(project_dir, "eval", "rule_types")
     evaluation_data_path = os.path.join(project_dir, "eval", "evaluation_data.csv")
     evaluation_output_dir = os.path.join(project_dir, "eval", "output")

@@ -101,3 +101,19 @@ class DbExamples(DbBase):
             row = examples_dict[example]
             return row['free_text'], row['schema'], row['rule_instance_params']
         print(f"Example {example} not found")
+
+
+class DbUnknowns(DbBase):
+    """
+    Class for managing the examples database. Inherits from DbBase and specifies
+    the database path and columns for examples.
+    """
+    db_path = GLOBALS.db_unknowns_path
+    columns = ['query', 'message', 'is_error', 'agents_massages', 'total_infer_time', 'Uuid', 'dateTtime', 'rule_name',
+               'rule_instance_params', 'confidence', 'error_message', 'rule_instance', 'good']
+
+    def __init__(self):
+        """
+        Initializes the examples database by loading the data from the specified database path.
+        """
+        self.init_df()
