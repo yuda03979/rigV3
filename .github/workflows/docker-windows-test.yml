@@ -11,15 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # Switch to Linux containers
-      - name: Set up Docker in Linux mode
-        run: |
-          $filePath = "$env:ProgramFiles\Docker\Docker\DockerCli.exe"
-          if (Test-Path $filePath) {
-            & $filePath -SwitchLinuxEngine
-          }
-        shell: powershell
-
       # Create necessary directories
       - name: Create directories
         run: |
@@ -28,6 +19,7 @@ jobs:
           mkdir C:\rig_modelfiles
         shell: cmd
 
+      # Create .env file with Windows paths
       - name: Create .env file
         run: |
           echo PROJECT_DIR=/c/data_dir > .env
@@ -42,13 +34,12 @@ jobs:
         shell: cmd
 
       - name: Build image
-        run: docker build -t rig .
+        run: docker build --platform linux/amd64 -t rig
 
       - name: Run docker compose
         run: docker compose up -d
 
-      - name: Show logs
-        run: docker compose logs
+      # Add any other necessary steps...
 
       - name: Cleanup
         run: docker compose down
