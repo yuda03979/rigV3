@@ -8,7 +8,7 @@ import time
 class AgentRuleClassifier:
     description = """rag implemented for elta, suitable for small - medium size db. """
 
-    model_nickname = str(MODELS_MANAGER.get_num_models())
+    model_nickname = f"AgentRuleClassifier_{GLOBALS.rag_model_name}"
     engine = "ollama"
     model_name = GLOBALS.rag_model_name  # "snowflake-arctic-embed:137m"
     task = "embed"

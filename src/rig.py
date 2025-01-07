@@ -1,5 +1,5 @@
 from .rule_instance_generator import RuleInstanceGenerator
-from Ollamamia.agents_store import AgentsStore
+from Ollamamia.agents_manager import AgentsStore, AgentsManager
 from .globals import GLOBALS
 from .databases import DbRules, DbExamples
 from .new_type import AddNewTypes
@@ -17,29 +17,29 @@ class Rig:
         self.add_new_types = AddNewTypes()
         self.rule_instance_generator = RuleInstanceGenerator()
 
-        self.agents_store = AgentsStore()  # ollamamia -> where the agents are
+        self.agents_manager = AgentsManager()  # ollamamia -> where the agents are
 
-        self.agents_store[GLOBALS.rule_classifier_agent] = "AgentRuleClassifier"
-        self.agents_store[GLOBALS.examples_finder_agent] = "AgentExamplesClassifier"
-        # self.agents_store[GLOBALS.rule_instance_generator_agent] = "AgentGenerateSchema"
-        self.agents_store[GLOBALS.rule_instance_generator_agent] = "AsyncAgentGenerateSchema"
+        self.agents_manager[GLOBALS.summarization_agent] = AgentsStore.agent_summarization
+        self.agents_manager[GLOBALS.rule_classifier_agent] = AgentsStore.agent_rule_classifier
+        self.agents_manager[GLOBALS.examples_finder_agent] = AgentsStore.agent_examples_classifier
+        self.agents_manager[GLOBALS.rule_instance_generator_agent] = AgentsStore.async_agent_generate_schema
 
 
         # add existing rules into agent
         rules_names = self.db_rules.df["rule_name"].tolist()
         embedded_rules = self.db_rules.df["embeddings"].tolist()
-        self.agents_store[GLOBALS.rule_classifier_agent].add_embedded_rules(rules_names, embedded_rules)
+        self.agents_manager[GLOBALS.rule_classifier_agent].add_embedded_rules(rules_names, embedded_rules)
 
         # add existing examples into agent
         examples_names = self.db_examples.df["free_text"].tolist()
         embedded_examples = self.db_examples.df["embeddings"].tolist()
-        self.agents_store[GLOBALS.examples_finder_agent].add_embedded_examples(examples_names, embedded_examples)
+        self.agents_manager[GLOBALS.examples_finder_agent].add_embedded_examples(examples_names, embedded_examples)
 
     def get_rule_instance(self, free_text: str) -> dict:
         # init the agents flow (the data from old inference)
-        self.agents_store.new()
+        self.agents_manager.new()
 
-        response = self.rule_instance_generator.predict(self.agents_store, self.db_rules, self.db_examples, free_text=free_text)
+        response = self.rule_instance_generator.predict(self.agents_manager, self.db_rules, self.db_examples, free_text=free_text)
 
         return response
 
@@ -55,7 +55,7 @@ class Rig:
 
         # agent embed and add everything to the agent data
         rules_names = [rule['rule_name'] for rule in rules_fields]
-        rules_names, rules_embeddings = self.agents_store[GLOBALS.rule_classifier_agent].add_ruleS(rules_names,
+        rules_names, rules_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].add_ruleS(rules_names,
                                                                                                    chunks_to_embed)
         for i in range(len(rules_fields)):
             rules_fields[i]["embeddings"] = rules_embeddings[i]
@@ -70,7 +70,7 @@ class Rig:
         rule_fields, words_to_embed = self.add_new_types.add(rule_type=rule_type)
 
         # agent embed and add everything to the agent data
-        success, index, rule_name, rule_embeddings = self.agents_store[GLOBALS.rule_classifier_agent].add_rule(
+        success, index, rule_name, rule_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].add_rule(
             rule_fields["rule_name"], words_to_embed)
         rule_fields["embeddings"] = rule_embeddings
 
@@ -104,7 +104,7 @@ class Rig:
         )
 
         if good:
-            success, index, example_name, example_embeddings = self.agents_store[GLOBALS.examples_finder_agent].add_example(
+            success, index, example_name, example_embeddings = self.agents_manager[GLOBALS.examples_finder_agent].add_example(
                 example["free_text"])
             if success:
                 example["embeddings"] = example_embeddings

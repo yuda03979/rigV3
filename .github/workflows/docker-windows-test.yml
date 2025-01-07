@@ -2,8 +2,6 @@ name: Docker Windows Test
 on:
   push:
     branches: [ async_validation ]
-  pull_request:
-    branches: [ async_validation ]
 
 jobs:
   test:

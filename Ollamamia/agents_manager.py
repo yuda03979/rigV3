@@ -1,41 +1,42 @@
-import time
 
 from Ollamamia.agents.classifiers.agent_rule_classifier import AgentRuleClassifier
 from Ollamamia.agents.classifiers.agent_examples_classifier import AgentExamplesClassifier
 from Ollamamia.agents.generators.agent_generate_schema import AgentGenerateSchema
 from Ollamamia.agents.generators.async_agent_generate_scema import AsyncAgentGenerateSchema
+from Ollamamia.agents.generators.agent_summarization import AgentSummarize
 from Ollamamia.globals_dir.utils import AgentsFlow
 
+import enum
+import time
 
-class AgentsStore:
+
+class AgentsStore(enum.Enum):
+    agent_rule_classifier = AgentRuleClassifier
+    agent_generate_schema = AgentGenerateSchema
+    agent_examples_classifier = AgentExamplesClassifier
+    async_agent_generate_schema = AsyncAgentGenerateSchema
+    agent_summarization = AgentSummarize
+
+
+class AgentsManager:
 
     def __init__(self):
         self.agents = {}
-        self.agents_available = {
-            "AgentRuleClassifier": AgentRuleClassifier,
-            "AgentGenerateSchema": AgentGenerateSchema,
-            "AgentExamplesClassifier": AgentExamplesClassifier,
-            "AsyncAgentGenerateSchema": AsyncAgentGenerateSchema
-        }
-        self.store = ""  # enum for available models
         self.agents_flow = None
         self.start = None
 
-    def add_agents(self, agent_nickname: str, agent_name: str):
+    def add_agents(self, agent_nickname: str, agent_name: AgentsStore):
         """
         maybe to add option to search agents with free text.
         :param agent_nickname:
         :param agent_name:
         :return:
         """
-        if not self.agents_available.get(agent_name):
-            print(f"your agent {agent_name} do not exist. choose one of those: {list(self.agents_available.keys())}")
-            return
-
         if agent_nickname in self.agents.keys():
             # here need to unload the previous agent from the RAM
             print(f"agent_nickname {agent_nickname} already exist. overwriting...")
-        self.agents[agent_nickname] = self.agents_available[agent_name](agent_name=agent_nickname)
+
+        self.agents[agent_nickname] = agent_name.value(agent_name=agent_nickname)
 
     def predict(self, model_nickname, query: dict | str):
 
@@ -68,7 +69,7 @@ class AgentsStore:
         self.agents_flow.total_infer_time = time.time() - self.start
         return self.agents_flow
 
-    def __setitem__(self, key: str, value: str):
+    def __setitem__(self, key: str, value: AgentsStore):
         self.add_agents(agent_nickname=key, agent_name=value)
 
     def __getitem__(self, item):

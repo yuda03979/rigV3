@@ -9,7 +9,7 @@ class AgentGenerateSchema:
     description = """given schema and free text, (and maybe some more parameters - depends on the prompt you choose
     the agent job is to return the values from the free text according to the schema"""
 
-    model_nickname = str(MODELS_MANAGER.get_num_models())
+    model_nickname = f"AgentGenerateSchema_{GLOBALS.generation_model_name}"
     engine = "ollama"
     model_name = GLOBALS.generation_model_name  # "gemma-2-2b-it-Q8_0:rig"
     model_type = "gemma2"
