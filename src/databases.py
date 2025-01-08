@@ -13,7 +13,7 @@ class DbBase:
     df = "remember to init that"
     columns: list = ["remember to init that"]
 
-    def init_df(self) -> None:
+    def init_df(self, force: bool = False) -> None:
         """
         Initializes the DataFrame by reading the database file from the specified path.
         Ensures that the specified columns are parsed as JSON. If the database file does not exist,
@@ -25,6 +25,10 @@ class DbBase:
             for col in self.columns:
                 self.df[col] = self.df[col].apply(json.loads)
         except:
+            self.df = pd.DataFrame(columns=self.columns)
+            self.save_db()
+
+        if force:
             self.df = pd.DataFrame(columns=self.columns)
             self.save_db()
 

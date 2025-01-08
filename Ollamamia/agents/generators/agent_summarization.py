@@ -6,7 +6,7 @@ import time
 
 
 class AgentSummarize:
-    description = """summarize query"""
+    description = """simple agent that summarize query and removing redundant words. also translate into english"""
 
     model_nickname = f"AgentSummarize_{GLOBALS.generation_model_name}"
     engine = "ollama"
@@ -17,17 +17,21 @@ class AgentSummarize:
     num_ctx = 2048
     temperature = 0.0
     top_p = 1.0
-    num_predict = 150
+    stop = ["}"]
+
 
     def __init__(self, agent_name):
         self.agent_name = agent_name
         self.model_nickname = f"{agent_name}_{self.model_nickname}"
-        self.prompt = "summarize this text while keeping all the important information: "
+        self.prompt = ("“Please take the following text and remove redundent words lie ua, kind of, i think, "
+                       "etc.. the message should be clear and strait forward. "
+                       "if the text is not in English, "
+                       "translate it into English. the text:")
 
         # initializing the model
         MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]
         MODELS_MANAGER[self.model_nickname].config.options.num_ctx = self.num_ctx
-        MODELS_MANAGER[self.model_nickname].config.options.num_predict = self.num_predict
+        MODELS_MANAGER[self.model_nickname].config.options.sop = self.stop
         MODELS_MANAGER[self.model_nickname].config.options.temperature = self.temperature
         MODELS_MANAGER[self.model_nickname].config.options.top_p = self.top_p
 
