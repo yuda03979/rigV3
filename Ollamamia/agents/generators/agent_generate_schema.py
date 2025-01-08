@@ -1,15 +1,15 @@
-from ...globals_dir.models_manager import MODELS_MANAGER
-from ...globals_dir.utils import get_dict
-import time
-from ...globals_dir.utils import AgentMessage
+from Ollamamia.globals_dir.models_manager import MODELS_MANAGER
+from Ollamamia.globals_dir.utils import get_dict
+from Ollamamia.globals_dir.utils import AgentMessage
 from src.globals import GLOBALS
+import time
 
 
 class AgentGenerateSchema:
     description = """given schema and free text, (and maybe some more parameters - depends on the prompt you choose
     the agent job is to return the values from the free text according to the schema"""
 
-    model_nickname = str(MODELS_MANAGER.get_num_models())
+    model_nickname = f"AgentGenerateSchema_{GLOBALS.generation_model_name}"
     engine = "ollama"
     model_name = GLOBALS.generation_model_name  # "gemma-2-2b-it-Q8_0:rig"
     model_type = "gemma2"
@@ -134,10 +134,10 @@ class Prompts:
         examples = f"""
         ### Example 1 (Similar Style Example):
         {example1}
-        
+
         ### Example 2 (Closest Task Match) :
         {example2}
-        
+
         ### Example 3 (Example for handling empty values):
         """
 
@@ -148,16 +148,16 @@ class Prompts:
         3. Carefully map field names from the schema to the text, even if the phrasing differs.
         4. Treat words like "without", "unknown" as "null", while "standard" "low" etc. will return the value.
         5. Output must match the schema exactly.
-    
+
         ***Be sure to follow these rules***
-    
+
         ### Examples:
         {examples}
         ---
-    
+
         ### Context (do not use for filling fields, only as reference for the schema):
         {description}
-    
+
         ---
         ### Task:
         - Schema: {schema}

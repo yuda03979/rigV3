@@ -5,6 +5,7 @@ import ast
 import time
 import json
 
+
 def parse_free_text(text):
     """Parse `free_text` as a list or wrap it in a list if it's plain text."""
     try:
@@ -41,7 +42,6 @@ def clean_text(text):
     return ''.join(char.lower() for char in text if char.isalnum())
 
 
-
 def normalize_empty_value(value):
     """Normalize empty values to a common representation."""
     if value in [None, '', ' ', " ", "", "unknown", "null", "NULL", "None", "no", "none", "empty", "EMPTY", 0, '0'] + [
@@ -67,6 +67,7 @@ def is_numerical(value):
     except (ValueError, TypeError):
         return False
 
+
 ##########
 
 def score_param_type(expected, response, numerical=True):
@@ -82,7 +83,6 @@ def score_param_type(expected, response, numerical=True):
         bin_response = {k: v for k, v in response.items() if
                         not is_numerical(v) and k != "ruleInstanceName" and not is_numerical(expected.get(k, None))}
     return int(bin_response == bin_expected)
-
 
 
 def score_param_type_avg(expected, response, numerical=True):
@@ -171,17 +171,16 @@ def find_differences(expected, response):
 
 def predict(self, free_text, row_id):
     """Predict rule instance using the self."""
-    model_response = self.get_rule_instance(free_text)#, row_id, for_eval=True)
+    model_response = self.get_rule_instance(free_text)  #, row_id, for_eval=True)
     # print("model_response =",model_response )
     if model_response["is_error"] == True:
         print("error: ", model_response)
-        return model_response, False
+        return model_response["rule_instance"], model_response, False
     rule_instance = model_response["rule_instance"]
     response = rule_instance["params"]
     response["ruleInstanceName"] = rule_instance["ruleInstanceName"]
     response["severity"] = rule_instance["severity"]
-    return response, model_response
-
+    return response, model_response, True
 
 
 # Evaluation Function
@@ -191,10 +190,10 @@ def evaluate_func(
         output_directory,
         start_point=0,
         end_point=2,  # None - all the data
+        jump=1,
         sleep_time_each_10=30,
-        batch_size=250
+        batch_size=250,
 ):
-
     """
        Evaluate model predictions against expected responses from a dataset.
 
@@ -224,8 +223,8 @@ def evaluate_func(
         os.makedirs(output_directory)
 
     for i, (row_id, rule_name, expected, free_text_list) in tqdm.tqdm(
-            enumerate(eval_data_generation[start_point:end_point]),
-            total=len(eval_data_generation[start_point:end_point])):
+            enumerate(eval_data_generation[start_point:end_point:jump]),
+            total=len(eval_data_generation[start_point:end_point:jump])):
         # print(f"Processing row {i + 1}/{len(eval_data_generation)}")
 
         if not i % 10:
@@ -241,10 +240,10 @@ def evaluate_func(
             rig_response = {}
             try:
                 # Predict response
-                response, rig_response = predict(self, free_text, row_id)
-                if not rig_response:
+                response, rig_response, success = predict(self, free_text, row_id)
+                if not success:
                     errors = f"Error: rig_response is None,{response}"
-                    print(errors)
+                    raise
 
                 else:
                     # print(i, rig_response)
@@ -274,7 +273,10 @@ def evaluate_func(
                 rule_name_score = score_rule_instance_name(expected, response)
                 # 7. Verify type name correctness
                 correct_rule_name = int(clean_text(rig_response["rule_name"]) == clean_text(rule_name))
+
                 binary_score = 1 if rule_name_score and binary_score_no_rule_instance else 0
+
+                confidence_score = rig_response.get("confidence")
 
                 # Handle differences
                 differences = "None"
@@ -301,6 +303,7 @@ def evaluate_func(
                 new_row = {
                     "id": row_id,
                     "binary_score": binary_score,
+                    "confidence_score": confidence_score,
                     "binary_score_no_rule_instance": binary_score_no_rule_instance,
                     "param_numerical_binary_score": param_numerical_binary_score,
                     "param_verbal_binary_score": param_verbal_binary_score,
@@ -316,16 +319,18 @@ def evaluate_func(
                     "correct_rule_name": correct_rule_name,
                     "predict_rule_name": rig_response["rule_name"],
                     "actual_rule_name": rule_name,
+                    "rig_response": rig_response
                 }
                 rows.append(new_row)
             except Exception as e:
-                raise Exception
+                # raise Exception(e)
                 print(f"Error processing row {i + 1}, free_text: {free_text}, Error: {e}")
                 errors = f"{errors}, Error: {e}"
 
                 rows.append({
                     "id": row_id,
                     "binary_score": 0,
+                    "confidence_score": -1,
                     "binary_score_no_rule_instance": 0,
                     "param_numerical_binary_score": 0,
                     "param_verbal_binary_score": 0,
@@ -337,7 +342,8 @@ def evaluate_func(
                     "expected": json.dumps(expected_print, indent=4, ensure_ascii=False),
                     "free_text": free_text,
                     "correct_rule_name": 0,
-                    "actual_rule_name": rule_name
+                    "actual_rule_name": rule_name,
+                    "rig_response": None
                 })
 
         # Write results and calculate accuracy after batch
@@ -383,11 +389,11 @@ def calculate_and_save_accuracy(rows, output_directory="output"):
     with open(file_path, "w") as file:
         file.write("without classification mistakes:\n Average Accuracy Metrics:\n")
         for metric, value in accuracy_results.items():
-            file.write(f"{metric}: {value:.2%}\n")
+            file.write(f"{metric}: {value}\n")
 
         file.write("with all the data:\n Average Accuracy Metrics:\n")
         for metric, value in accuracy_results_2.items():
-            file.write(f"{metric}: {value:.2%}\n")
+            file.write(f"{metric}: {value}\n")
 
     return accuracy_results_2
 
@@ -430,5 +436,3 @@ def generate_unique_filename(directory, base_name, extension="csv"):
         if not os.path.exists(full_path):
             return full_path  # Return the first available filename
         i += 1
-
-

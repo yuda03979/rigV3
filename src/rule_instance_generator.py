@@ -9,17 +9,23 @@ class RuleInstanceGenerator:
         pass
 
     def predict(self, agents_manager, db_rules, db_examples, free_text):
-        return self.generate(agents_manager, db_rules, db_examples, free_text)
+        response = self.generate(agents_manager, db_rules, db_examples, free_text)
 
-    def generate(self, agents_manager, db_rules, db_examples, free_text):
+        if response.get("confidence") == -2:  # we couldn't classify the rule
+            summarize_query = agents_manager[GLOBALS.summarization_agent:free_text].agent_message
+            response = self.generate(agents_manager, db_rules, db_examples, free_text, summarize_query)
+
+        return response
+
+    def generate(self, agents_manager, db_rules, db_examples, free_text, summarize_query=None):
         #######
-        # classify the rule name
-
-        rule_names_list = self.__classify_rule(agents_manager, free_text)
+        # classify the rule name. in the first time we don't summarize for saving time
+        if not summarize_query:
+            summarize_query = free_text
+        rule_names_list = self.__classify_rule(agents_manager, summarize_query)
         if rule_names_list is None:
             return dict(is_error=True, error_message="didn't find rule name")
         rule_name = rule_names_list[0][0]
-
 
         ########
         # first try:
@@ -28,16 +34,25 @@ class RuleInstanceGenerator:
         #######
         # in case of wrong classification:
         if mismatch_rule_name and len(rule_names_list) >= 2:
+            print(rule_names_list[:2])
             rule_name = rule_names_list[1][0]
             response2, mismatch_rule_name = self.__generate(agents_manager, db_rules, db_examples, rule_name, free_text)
 
             if not mismatch_rule_name:
+                print("solved")
                 response = response2
             else:
+                print("unsolved 2th attempt")
+                response["confidence"] = -1
                 response["is_error"] = True
                 response["error_message"] = ("since more then 50% of the fields are None/'null', we assume its "
-                                             "classification mismatch, and we can't solv it")
-
+                                             "classification mismatch, and we can't solve it")
+        elif mismatch_rule_name and len(rule_names_list) < 2:
+            print("unsolved 1th attempt")
+            response["confidence"] = -2
+            response["is_error"] = True
+            response["error_message"] = ("since more then 50% of the fields are None/'null', we assume its "
+                                         "classification mismatch, and we can't solve it")
         return response
 
     def __generate(self, agents_manager, db_rules, db_examples, rule_name, free_text):
@@ -99,7 +114,7 @@ class RuleInstanceGenerator:
         return example1, example2
 
     def __generate_with_schema(self, agents_manager, free_text, schema, rule_name, example1, example2, description) -> \
-    tuple[dict, bool]:
+            tuple[dict, bool]:
 
         agent_message: pydantic.BaseModel = agents_manager[GLOBALS.rule_instance_generator_agent:dict(
             query=free_text,
@@ -111,13 +126,16 @@ class RuleInstanceGenerator:
         )]
 
         agents_flow: pydantic.BaseModel = agents_manager.get_agents_flow()
+
+        # print(agent_message)
+
         response = agents_flow.model_dump()
         response["rule_name"] = rule_name
-        response["rule_instance_params"] = agents_flow.agents_massages[-1].agent_message
+        response["rule_instance_params"] = agent_message.agent_message[0]
+        response["confidence"] = agent_message.agent_message[1]
         response["error_message"] = ""
 
         success = not agents_flow.is_error
-
         return response, success
 
     def __post_processing(self, response, rule_name, schema, default_rule_instance):
