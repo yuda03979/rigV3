@@ -122,10 +122,11 @@ class AddNewTypes(AddNewType):
 
     folder = GLOBALS.rules_folder_path
 
-    def load(self, rule_types: list[dict] | None = None):
+    def load(self, rule_types: list[dict] | None = None, folder: str = None):
         """
         Loads rule types from the folder or accepts a list of rule types as input.
 
+        :param folder: from which folder to read
         :param rule_types: A list of rule type dictionaries, or None to load from the folder.
         :return: A tuple containing:
                  - A list of dictionaries representing prepared rule types.
@@ -134,10 +135,12 @@ class AddNewTypes(AddNewType):
         :raises json.JSONDecodeError: If a rule file cannot be parsed.
         """
         # Create rule_types list if not provided
+        if not folder:
+            folder = self.folder
         if rule_types is None:
             rule_types = []
-            for file_name in os.listdir(self.folder):
-                file_path = os.path.join(self.folder, file_name)
+            for file_name in os.listdir(folder):
+                file_path = os.path.join(folder, file_name)
                 if file_path.endswith(".json"):
                     with open(file_path, 'r') as file:
                         rule_type_json = file.read()

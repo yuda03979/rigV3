@@ -33,6 +33,7 @@ class Globals:
     rag_model_name = os.getenv("RAG_MODEL_NAME")
 
     project_dir = validate_path("PROJECT_DIR")
+    eval_dir = validate_path("EVAL_DIR")
     classification_threshold = validate_numeric("CLASSIFICATION_THRESHOLD", value_type=float)
     classification_temperature = validate_numeric("CLASSIFICATION_TEMPERATURE", value_type=float)
     examples_rag_threshold = validate_numeric("EXAMPLES_RAG_THRESHOLD", value_type=float)
@@ -41,9 +42,12 @@ class Globals:
     db_rules_path = os.path.join(project_dir, "db_rules.csv")
     db_examples_path = os.path.join(project_dir, "db_examples.csv")
     db_unknowns_path = os.path.join(project_dir, "db_unknowns.csv")
-    rules_folder_path = os.path.join(project_dir, "eval", "rule_types")
-    evaluation_data_path = os.path.join(project_dir, "eval", "evaluation_data.csv")
-    evaluation_output_dir = os.path.join(project_dir, "eval", "output")
+
+    rules_folder_path = os.path.join(project_dir, "rule_types")
+
+    evaluation_rules_folder_path = os.path.join(eval_dir, "rule_types")
+    evaluation_data_path = os.path.join(eval_dir, "evaluation_data.csv")
+    evaluation_output_dir = os.path.join(eval_dir, "eval", "output")
 
 
 GLOBALS = Globals()

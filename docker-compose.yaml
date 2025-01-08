@@ -32,6 +32,7 @@ services:
     environment:
       - OLLAMA_HOST=http://ollama:11434
       - PROJECT_DIR=${PROJECT_DIR}
+      - EVAL_DIR=${EVAL_DIR}
       - CLASSIFICATION_THRESHOLD=${CLASSIFICATION_THRESHOLD}
       - CLASSIFICATION_TEMPERATURE=${CLASSIFICATION_TEMPERATURE}
       - EXAMPLES_RAG_THRESHOLD=${EXAMPLES_RAG_THRESHOLD}
@@ -42,6 +43,7 @@ services:
       - "80:80"
     volumes:
       - ${PROJECT_DIR}:${PROJECT_DIR}
+      - ${EVAL_DIR}:${EVAL_DIR}
     networks:
       - rig_network
 volumes:

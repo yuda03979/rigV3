@@ -6,11 +6,6 @@ from .new_type import AddNewTypes
 from .evaluation import evaluate_func
 import pandas as pd
 
-import concurrent.futures
-import psutil
-import time
-from statistics import mean
-
 
 class Rig:
 
@@ -80,17 +75,21 @@ class Rig:
         """
         return self.db_rules.df[self.db_rules.df['rule_name'] == rule_name].to_dict(orient='records')[0]
 
-    def set_rules(self, rule_types: list[dict] | None = None) -> bool:
+    def set_rules(self, rule_types: list[dict] | None = None, _eval=False) -> bool:
         """
         Loads and embeds new rules into the rule database and agent.
         Args:
             rule_types (list[dict] | None): A list of dictionaries representing new rules.
         Returns:
             bool: True if the rules were successfully added and saved.
+            :param _eval: if loading for evaluation.
         """
 
         # get all the fields and the queries to embed
-        rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types)
+        if _eval:
+            rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types, folder=GLOBALS.evaluation_rules_folder_path)
+        else:
+            rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types)
 
         # agent embed and add everything to the agent data
         rules_names = [rule['rule_name'] for rule in rules_fields]
@@ -197,9 +196,11 @@ class Rig:
             end_point=2,  # -1 - all the data
             jump=1,
             sleep_time_each_10_iter=30,
-            batch_size=250
+            batch_size=250,
+            set_eval_rules=True  # deleting existing rules!!!
     ):
-        # to do! return th actual scores and not the last one
+        if set_eval_rules:
+            self.set_rules(_eval=False)
         return evaluate_func(
             self,
             data_file_path=GLOBALS.evaluation_data_path,
@@ -218,52 +219,6 @@ class Rig:
         :param interval:
         :return:
         """
-
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            future = executor.submit(self.monitor_system_resources, duration, interval)
-            system_resources = future.result()  # Get the result of the monitoring
-
         globals_data = vars(GLOBALS)
         agents_data = str(self.agents_manager)
-        return dict(globals_data=globals_data, agents_data=agents_data, system_resources=system_resources)
-
-    def monitor_system_resources(self, duration=60, interval=1):
-        """
-        Monitor system resources for a specified duration and return average usage.
-
-        Args:
-            duration (int): Total monitoring time in seconds (default: 60)
-            interval (int): Sampling interval in seconds (default: 1)
-
-        Returns:
-            dict: Average CPU, RAM, and disk usage percentages
-        """
-        cpu_usage = []
-        ram_usage = []
-        disk_usage = []
-
-        end_time = time.time() + duration
-
-        while time.time() < end_time:
-            # CPU usage
-            cpu_percent = psutil.cpu_percent(interval=1)
-            cpu_usage.append(cpu_percent)
-
-            # RAM usage
-            memory = psutil.virtual_memory()
-            ram_percent = memory.percent
-            ram_usage.append(ram_percent)
-
-            # Disk usage
-            disk = psutil.disk_usage('/')
-            disk_percent = disk.percent
-            disk_usage.append(disk_percent)
-
-            time.sleep(interval)
-
-        return {
-            'average_cpu': round(mean(cpu_usage), 2),
-            'average_ram': round(mean(ram_usage), 2),
-            'average_disk': round(mean(disk_usage), 2),
-            'samples_collected': len(cpu_usage)
-        }
+        return dict(globals_data=globals_data, agents_data=agents_data)
