@@ -6,9 +6,30 @@ from src.globals import GLOBALS
 
 
 class AsyncAgentGenerateSchema:
+    """
+    An asynchronous agent that extracts structured data from free text according to a given schema.
+
+    This agent uses two language models in parallel for generation and validation, comparing their
+    outputs to assess confidence. It supports both synchronous and asynchronous prediction methods.
+
+    Attributes:
+        description (str): Description of the agent's purpose
+        model_1th_nickname (str): Identifier for the primary generation model
+        model_2th_nickname (str): Identifier for the validation model
+        engine (str): Engine used for models ("ollama")
+        model_1th_name (str): Name of primary model from GLOBALS
+        model_2th_name (str): Name of validation model from GLOBALS
+        model_type (str): Type of model being used ("gemma2")
+        task (str): Type of task ("generate")
+        num_ctx (int): Context window size (2048)
+        stop (list[str]): Stop tokens (["}"])
+        temperature (float): Generation temperature (0.0)
+        top_p (float): Top-p sampling parameter (1.0)
+        model_name (list[str]): Names of both models
+        model_nickname (list[str]): Nicknames of both models
+    """
+
     description = """given schema and free text, the agent job is to return the values from the free text according to the schema"""
-
-
 
     model_1th_nickname = f"AsyncAgentGenerateSchema_{GLOBALS.generation_model_name}"
     model_2th_nickname = f"AsyncAgentGenerateSchema_{GLOBALS.validation_model_name}"
@@ -26,7 +47,13 @@ class AsyncAgentGenerateSchema:
     model_name = [GLOBALS.generation_model_name, GLOBALS.validation_model_name]
     model_nickname = [model_1th_nickname, model_2th_nickname]
 
-    def __init__(self, agent_name):
+    def __init__(self, agent_name: str):
+        """
+        Initialize the AsyncAgentGenerateSchema.
+
+        Args:
+            agent_name (str): Name identifier for the agent instance
+        """
         self.agent_name = agent_name
         self.model_1th_nickname = f"{agent_name}_{self.model_1th_nickname}"
         self.prompt_func = Prompts(self.engine, self.model_type).prompt_func
@@ -35,6 +62,7 @@ class AsyncAgentGenerateSchema:
         self._init_models()
 
     def _init_models(self):
+        """Initialize both models with their configurations."""
         for nickname, model_name in [(self.model_1th_nickname, self.model_1th_name),
                                      (self.model_2th_nickname, self.model_2th_name)]:
             ASYNC_MODEL_MANAGER[nickname] = [self.engine, model_name, self.task]
@@ -44,7 +72,30 @@ class AsyncAgentGenerateSchema:
             model_config.temperature = self.temperature
             model_config.top_p = self.top_p
 
-    async def predict_async(self, kwargs):
+    async def predict_async(self, kwargs: dict) -> AgentMessage:
+        """
+        Asynchronously process free text according to the provided schema.
+
+        Args:
+            kwargs (dict): Dictionary containing:
+                - query (str): The free text to process
+                - schema (dict): The target schema structure
+                - rule_name (str, optional): Name of the rule being applied
+                - example1 (dict[dict], optional): First example for prompt
+                - example2 (dict[dict], optional): Second example for prompt
+                - description (dict | str, optional): Additional context
+
+        Returns:
+            AgentMessage: Message object containing:
+                - agent_name: Name of the agent
+                - agent_description: Description of the agent
+                - agent_input: Original query
+                - succeed: Whether processing succeeded
+                - agent_message: [processed_response, confidence]
+                - message_model: [raw_model1_response, raw_model2_response]
+                - infer_time: Processing time
+                - additional_data: Details about both models' responses
+        """
         query: str = kwargs["query"]
         schema: dict = kwargs["schema"]
         rule_name: str | None = kwargs.get("rule_name")
@@ -109,22 +160,54 @@ class AsyncAgentGenerateSchema:
         )
         return agent_message
 
-    # Keep sync version for compatibility
-    def predict(self, kwargs):
+    def predict(self, kwargs: dict) -> AgentMessage:
+        """
+        Synchronous wrapper for predict_async.
+
+        Args:
+            kwargs (dict): Same arguments as predict_async
+
+        Returns:
+            AgentMessage: Same return value as predict_async
+        """
         return asyncio.run(self.predict_async(kwargs))
 
 
-# Prompts class remains unchanged
-
 class Prompts:
+    """
+    Manages prompt generation for different model types.
+    Currently supports the Gemma2 model type.
+    """
 
-    def __init__(self, engine, model_1th_name):
+    def __init__(self, engine: str, model_1th_name: str):
+        """
+        Initialize the Prompts manager.
+
+        Args:
+            engine (str): The engine being used
+            model_1th_name (str): The model type for prompt selection
+        """
         self.prompt_func = None
         if model_1th_name == "gemma2":
             self.prompt_func = self.prompt_gemma2
 
     @staticmethod
-    def prompt_gemma2(free_text, rule_name, schema, description, example1=None, example2=None):
+    def prompt_gemma2(free_text: str, rule_name: str, schema: dict, description: str | dict,
+                      example1: dict | None = None, example2: dict | None = None) -> str:
+        """
+        Generate a prompt for the Gemma2 model.
+
+        Args:
+            free_text (str): The text to process
+            rule_name (str): Name of the rule being applied
+            schema (dict): The target schema structure
+            description (str | dict): Additional context
+            example1 (dict, optional): First example for the prompt
+            example2 (dict, optional): Second example for the prompt
+
+        Returns:
+            str: The formatted prompt text
+        """
         if not example1:
             example1 = """ 
             Free text:

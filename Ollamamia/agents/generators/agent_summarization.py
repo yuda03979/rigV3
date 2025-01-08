@@ -23,8 +23,8 @@ class AgentSummarize:
     def __init__(self, agent_name):
         self.agent_name = agent_name
         self.model_nickname = f"{agent_name}_{self.model_nickname}"
-        self.prompt = ("“Please take the following text and remove redundent words lie ua, kind of, i think, "
-                       "etc.. the message should be clear and strait forward. "
+        self.prompt = ("“Please take the following text and remove redundant words like ua, kind of, i think, "
+                       "etc. the message should be clear and strait forward. "
                        "if the text is not in English, "
                        "translate it into English. the text:")
 

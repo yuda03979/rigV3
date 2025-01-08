@@ -24,6 +24,7 @@ class Rig:
 
         self.agents_manager = AgentsManager()  # ollamamia -> where the agents are
 
+        # init the agents
         self.agents_manager[GLOBALS.summarization_agent] = AgentsStore.agent_summarization
         self.agents_manager[GLOBALS.rule_classifier_agent] = AgentsStore.agent_rule_classifier
         self.agents_manager[GLOBALS.examples_finder_agent] = AgentsStore.agent_examples_classifier
@@ -59,7 +60,12 @@ class Rig:
         response = self.rule_instance_generator.predict(self.agents_manager, self.db_rules, self.db_examples,
                                                         free_text=free_text)
         response['total_infer_time'] = time.time() - start
-        self.feedback(rig_response=response.copy())
+
+        if response.get('confidence') == 1:
+            self.feedback(rig_response=response.copy(), good=True)
+        else:
+            self.feedback(rig_response=response.copy())
+
         return response
 
     def get_rules_names(self) -> list:

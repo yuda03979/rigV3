@@ -91,6 +91,7 @@ in the load_gguf_modelfile.ipynb run the first cell.
 - notice that you only need to do it once, and you also can delete the directory after (just keep the directory empty) 
 
 # how to use:
+it uses fastAPI.
 (you also have how_to_docker.ipynb for python functions.)
 - functions:
 1. get_rule_instance
@@ -106,3 +107,6 @@ output:
 ```
 and the same all the functions. see how_to_docker.ipynb
 ```
+
+
+

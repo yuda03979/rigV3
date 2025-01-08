@@ -7,9 +7,30 @@ import re
 import ast
 import json
 
+"""
+This module implements a type-safe message passing system for agent-based workflows using Pydantic models
+and custom type validation. It provides classes and utilities for handling agent messages, managing workflow
+state, and performing type checking with support for complex Python type hints.
+"""
+
 
 def custom_is_instance(value, field_type):
-    """Custom isinstance check for parameterized generics."""
+    """
+    Performs runtime type checking for complex Python type hints including generics and special types.
+
+    Args:
+        value: Any value to check the type of
+        field_type: A type hint to check against (can be simple types, Union, Optional,
+                   Sequence, List, Tuple, Dict, or Literal)
+
+    Returns:
+        bool: True if the value matches the type hint, False otherwise
+
+    Examples:
+        custom_is_instance(None, Optional[str])  # Returns True
+        custom_is_instance([1, 2, 3], Sequence[int])  # Returns True
+        custom_is_instance("invalid", Literal["valid", "also_valid"])  # Returns False
+    """
     # Handle None for Optional types
     if value is None:
         if field_type is type(None):
@@ -102,6 +123,17 @@ def custom_is_instance(value, field_type):
 
 
 class CustomBasePydantic(BaseModel):
+    """
+    A custom Pydantic base model that implements runtime type checking for field assignments.
+
+    This class extends Pydantic's BaseModel to add runtime type validation when fields are
+    set after instance creation. It uses custom_is_instance() for type checking to support
+    complex Python type hints.
+
+    Raises:
+        ValueError: If a field is assigned a value of incorrect type
+    """
+
     def __setattr__(self, name, value):
         # Perform validation on field assignment
         field_type = self.__annotations__.get(name)
@@ -112,7 +144,21 @@ class CustomBasePydantic(BaseModel):
 
 class AgentMessage(CustomBasePydantic):
     """
-    All the agents must return only this object.
+    A standardized message format that all agents must use for communication.
+
+    This class represents the structure of messages that agents can exchange in the system.
+    It includes metadata about the agent, success status, and the actual message content.
+
+    Attributes:
+        agent_name (str): Name identifier for the agent
+        agent_description (str): Description of the agent's role or purpose
+        succeed (bool): Whether the agent's operation was successful
+        agent_input (Any): The input received by the agent
+        agent_message (Any): The message/output produced by the agent
+        message_model (Any): The model used to generate the message
+        dateTtime (datetime): Timestamp of message creation (auto-generated)
+        infer_time (float | None): Time taken for inference, if applicable
+        additional_data (Any): Optional additional data the agent wants to include
     """
     agent_name: str
     agent_description: str
@@ -127,7 +173,19 @@ class AgentMessage(CustomBasePydantic):
 
 class AgentsFlow(CustomBasePydantic):
     """
-    In this object, we save all the data across the pipeline.
+    Manages the state and message flow of an agent-based pipeline.
+
+    This class tracks the complete state of a workflow including all messages passed
+    between agents, total processing time, and error states.
+
+    Attributes:
+        query (Any): The initial query or input to the pipeline
+        message (dict): Additional message data, defaults to empty dict
+        is_error (bool): Error state flag, defaults to False
+        agents_massages (Optional[list[AgentMessage]]): List of all agent messages in sequence
+        total_infer_time (float): Total inference time across all agents
+        Uuid (uuid.UUID): Unique identifier for the flow (auto-generated)
+        dateTtime (datetime): Timestamp of flow creation (auto-generated)
     """
     query: Any
     message: dict = {}
@@ -138,6 +196,12 @@ class AgentsFlow(CustomBasePydantic):
     dateTtime: datetime = Field(default_factory=datetime.now, alias="dateTtime")
 
     def append(self, agent_message: AgentMessage):
+        """
+        Adds a new agent message to the flow's history.
+
+        Args:
+            agent_message (AgentMessage): The message to append to the flow
+        """
         if not self.agents_massages:
             self.agents_massages = [agent_message]
         else:
@@ -145,11 +209,36 @@ class AgentsFlow(CustomBasePydantic):
 
 
 def handle_errors(e: str):
+    """
+    Central error handling function for the agent system.
+
+    Args:
+        e (str): Error message or description
+
+    Note:
+        Currently only prints the error but could be extended to implement more
+        sophisticated error handling strategies.
+    """
     print(e)
     # raise
 
 
-def get_dict(input_string):
+def get_dict(input_string: str) -> tuple[Union[dict, str], bool]:
+    """
+    Attempts to extract and parse a dictionary from a string containing JSON-like content.
+
+    Args:
+        input_string (str): String that may contain a dictionary-like structure
+
+    Returns:
+        tuple: (parsed_content, success_flag)
+            - parsed_content: Either the parsed dictionary or the original string if parsing failed
+            - success_flag: Boolean indicating whether parsing was successful
+
+    Note:
+        Handles various edge cases including unbalanced braces and alternative
+        representations of null values.
+    """
     # Use regex to find content between { and } that looks like a valid JSON
     input_string = fix_unbalanced_braces(input_string)
     input_string = re.sub(r"[\t\n]", "", input_string)
@@ -175,9 +264,19 @@ def get_dict(input_string):
             return input_string, False
 
 
-def fix_unbalanced_braces(response):
+def fix_unbalanced_braces(response: str) -> str:
     """
-    Fix unbalanced braces in a model response by ensuring correct matching of { and }.
+    Fixes unbalanced braces in a string by adding or removing braces as needed.
+
+    Args:
+        response (str): String that may contain unbalanced braces
+
+    Returns:
+        str: String with balanced braces
+
+    Note:
+        Removes tabs and newlines before processing and ensures equal numbers
+        of opening and closing braces.
     """
     response = re.sub(r"[\t\n]", "", response)  # Remove tabs and newlines
 
