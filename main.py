@@ -59,3 +59,18 @@ def evaluate(
         sleep_time_each_10_iter=int(sleep_time_each_10_iter),
         batch_size=int(batch_size)
     )
+
+
+@app.get("/metadata")
+def metadata() -> dict:
+    return rig.metadata()
+
+
+@app.post("/restart")
+def restart(**kwargs) -> bool:
+    return rig.restart(**kwargs)
+
+
+@app.post("/rephrase_query")
+def rephrase_query(query: str) -> str:
+    return rig.rephrase_query(query)

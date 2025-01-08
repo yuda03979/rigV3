@@ -203,7 +203,7 @@ class Rig:
             jump=1,
             sleep_time_each_10_iter=30,
             batch_size=250,
-            set_eval_rules=True  # deleting existing rules!!!
+            set_eval_rules=True  # deleting existing rules!!! and loading the directory
     ):
         if set_eval_rules:
             self.set_rules(_eval=False)
@@ -229,16 +229,22 @@ class Rig:
         response["ollama_models"] = dict(existing_models=ollama.list(), loaded_models=ollama.ps())
         return response
 
-    def restart(self):
-        self.db_rules.init_df(force=True)
-        self.db_examples.init_df(force=True)
+    def restart(self, db_rules: bool = False, db_examples: bool = False, db_unknown: bool = False):
+        """deleting the db's"""
+        if db_rules:
+            self.db_rules.init_df(force=True)
+        if db_examples:
+            self.db_examples.init_df(force=True)
+        if db_unknown:
+            self.db_unknown.init_df(force=True)
+        return True
 
     def rephrase_query(self, query) -> str:
         """
         takes query and returning it professional, and translate it to english if needed.
         it will slow down the system a little bit
-        :param query:
-        :return:
+        :param query: str
+        :return: str
         """
         agent_message = self.agents_manager[GLOBALS.summarization_agent:query]
         return str(agent_message.agent_message)

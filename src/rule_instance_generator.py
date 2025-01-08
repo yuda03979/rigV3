@@ -4,28 +4,48 @@ from .post_processing import post_processing
 
 
 class RuleInstanceGenerator:
-
-    def __init__(self):
-        pass
+    """
+    A class that generates rule instances based on free text input using a combination of
+    classification, generation, and post-processing steps.
+    """
 
     def predict(self, agents_manager, db_rules, db_examples, free_text):
+        """
+        Main entry point for rule instance prediction.
+
+        Args:
+            agents_manager: Manager object handling agent interactions
+            db_rules: Database containing rule definitions and schemas
+            db_examples: Database containing example rule instances
+            free_text: String input to generate rules from
+
+        Returns:
+            dict: Response containing the generated rule instance or error information
+        """
         response = self.generate(agents_manager, db_rules, db_examples, free_text)
         return response
 
     def generate(self, agents_manager, db_rules, db_examples, free_text):
-        #######
-        # classify the rule name. in the first time we don't summarize for saving time
+        """
+        Generates a rule instance through classification and generation steps.
+
+        Args:
+            agents_manager: Manager object handling agent interactions
+            db_rules: Database containing rule definitions and schemas
+            db_examples: Database containing example rule instances
+            free_text: String input to generate rules from
+
+        Returns:
+            dict: Response containing the generated rule instance or error information
+                 Contains keys: is_error, error_message, confidence, rule_instance
+        """
         rule_names_list = self.__classify_rule(agents_manager, free_text)
         if rule_names_list is None:
             return dict(is_error=True, error_message="didn't find rule name")
-        rule_name = rule_names_list[0][0]
 
-        ########
-        # first try:
+        rule_name = rule_names_list[0][0]
         response, mismatch_rule_name = self.__generate(agents_manager, db_rules, db_examples, rule_name, free_text)
 
-        #######
-        # in case of wrong classification:
         if mismatch_rule_name and len(rule_names_list) >= 2:
             print(rule_names_list[:2])
             rule_name = rule_names_list[1][0]
@@ -49,21 +69,26 @@ class RuleInstanceGenerator:
         return response
 
     def __generate(self, agents_manager, db_rules, db_examples, rule_name, free_text):
-        #######
-        # get params for the generation part
+        """
+        Internal method to generate a rule instance for a specific rule name.
+
+        Args:
+            agents_manager: Manager object handling agent interactions
+            db_rules: Database containing rule definitions and schemas
+            db_examples: Database containing example rule instances
+            rule_name: Name of the rule to generate an instance for
+            free_text: String input to generate rules from
+
+        Returns:
+            tuple: (response_dict, mismatch_rule_name_bool)
+                  response_dict contains the generated rule instance or error information
+                  mismatch_rule_name_bool indicates if the rule name was mismatched
+        """
         schema, description, default_rule_instance = self.__get_params(db_rules, rule_name)
-
-        #######
-        # get examples
         example1, example2 = self.__get_examples(agents_manager, db_examples, free_text)
-
-        #######
-        # generate the rule instance
         response, success = self.__generate_with_schema(agents_manager, free_text, schema, rule_name, example1,
                                                         example2, description)
 
-        ########
-        # post processing
         if success:
             response, mismatch_rule_name = self.__post_processing(response, rule_name, schema, default_rule_instance)
         else:
@@ -73,25 +98,47 @@ class RuleInstanceGenerator:
 
     def __classify_rule(self, agents_manager, free_text):
         """
-        :param agents_manager:
-        :param free_text:
-        :return: list of all the rule_names with scores. [(rule_name, score), ...]
+        Classifies the input text to determine appropriate rule names.
+
+        Args:
+            agents_manager: Manager object handling agent interactions
+            free_text: String input to classify
+
+        Returns:
+            list: List of tuples containing (rule_name, score) pairs, sorted by score
         """
         agent_message: pydantic.BaseModel = agents_manager[GLOBALS.rule_classifier_agent:free_text]
-
-        rule_names_list = agent_message.agent_message
-        return rule_names_list
+        return agent_message.agent_message
 
     def __get_params(self, db_rules, rule_name):
-        # with the rule_name get from the db_rules the schema and description
+        """
+        Retrieves rule parameters from the rules database.
 
+        Args:
+            db_rules: Database containing rule definitions
+            rule_name: Name of the rule to get parameters for
+
+        Returns:
+            tuple: (schema, description, default_rule_instance)
+        """
         schema = db_rules.df.loc[db_rules.df["rule_name"] == rule_name, "schema"].iloc[0]
         description = db_rules.df.loc[db_rules.df["rule_name"] == rule_name, "description"].iloc[0]
         default_rule_instance = db_rules.df.loc[db_rules.df["rule_name"] == rule_name, "default_rule_instance"].iloc[0]
-
         return schema, description, default_rule_instance
 
     def __get_examples(self, agents_manager, db_examples, free_text):
+        """
+        Retrieves relevant examples for rule generation.
+
+        Args:
+            agents_manager: Manager object handling agent interactions
+            db_examples: Database containing example rule instances
+            free_text: String input to find examples for
+
+        Returns:
+            tuple: (example1, example2) where each example is a formatted string containing
+                  free_text, schema, and output information
+        """
         agent_message: pydantic.BaseModel = agents_manager[GLOBALS.examples_finder_agent:free_text]
 
         example1 = agent_message.agent_message[0]
@@ -106,9 +153,24 @@ class RuleInstanceGenerator:
 
         return example1, example2
 
-    def __generate_with_schema(self, agents_manager, free_text, schema, rule_name, example1, example2, description) -> \
-            tuple[dict, bool]:
+    def __generate_with_schema(self, agents_manager, free_text, schema, rule_name, example1, example2, description):
+        """
+        Generates a rule instance using the provided schema and examples.
 
+        Args:
+            agents_manager: Manager object handling agent interactions
+            free_text: String input to generate from
+            schema: Schema definition for the rule
+            rule_name: Name of the rule being generated
+            example1: First example for reference
+            example2: Second example for reference
+            description: Description of the rule
+
+        Returns:
+            tuple: (response_dict, success_bool)
+                  response_dict contains the generated rule instance and metadata
+                  success_bool indicates if generation was successful
+        """
         agent_message: pydantic.BaseModel = agents_manager[GLOBALS.rule_instance_generator_agent:dict(
             query=free_text,
             schema=str(schema),
@@ -120,8 +182,6 @@ class RuleInstanceGenerator:
 
         agents_flow: pydantic.BaseModel = agents_manager.get_agents_flow()
 
-        # print(agent_message)
-
         response = agents_flow.model_dump()
         response["rule_name"] = rule_name
         response["rule_instance_params"] = agent_message.agent_message[0]
@@ -132,6 +192,20 @@ class RuleInstanceGenerator:
         return response, success
 
     def __post_processing(self, response, rule_name, schema, default_rule_instance):
+        """
+        Performs post-processing on the generated rule instance.
+
+        Args:
+            response: Dictionary containing the generated rule instance and metadata
+            rule_name: Name of the rule being processed
+            schema: Schema definition for the rule
+            default_rule_instance: Default instance to fall back on
+
+        Returns:
+            tuple: (response_dict, mismatch_rule_name_bool)
+                  response_dict contains the processed rule instance
+                  mismatch_rule_name_bool indicates if rule name was mismatched
+        """
         response["rule_instance"], mismatch_rule_name = post_processing(
             rule_name,
             response["rule_instance_params"],
