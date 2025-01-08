@@ -31,7 +31,7 @@ class AgentSummarize:
         # initializing the model
         MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]
         MODELS_MANAGER[self.model_nickname].config.options.num_ctx = self.num_ctx
-        MODELS_MANAGER[self.model_nickname].config.options.sop = self.stop
+        MODELS_MANAGER[self.model_nickname].config.options.stop = self.stop
         MODELS_MANAGER[self.model_nickname].config.options.temperature = self.temperature
         MODELS_MANAGER[self.model_nickname].config.options.top_p = self.top_p
 
