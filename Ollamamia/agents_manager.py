@@ -78,9 +78,14 @@ class AgentsManager:
         else:
             return self.agents.get(item)
 
-    def cusbara(self):
-        """
-        opening the termianl for q&a
-        :return:
-        """
-        pass
+    def __repr__(self):
+        num_agents = len(self.agents)
+        agents_nicknames = list(self.agents.keys())
+        models_loaded = [agent.model_name for agent in self.agents.values()]
+        models_nicknames = [agent.model_nickname for agent in self.agents.values()]
+        return str(dict(
+            num_agents=num_agents,
+            agents_nicknames=agents_nicknames,
+            models_loaded=models_loaded,
+            models_nicknames=models_nicknames
+        ))

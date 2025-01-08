@@ -8,6 +8,8 @@ from src.globals import GLOBALS
 class AsyncAgentGenerateSchema:
     description = """given schema and free text, the agent job is to return the values from the free text according to the schema"""
 
+
+
     model_1th_nickname = f"AsyncAgentGenerateSchema_{GLOBALS.generation_model_name}"
     model_2th_nickname = f"AsyncAgentGenerateSchema_{GLOBALS.validation_model_name}"
     engine = "ollama"
@@ -20,6 +22,9 @@ class AsyncAgentGenerateSchema:
     stop = ["}"]
     temperature = 0.0
     top_p = 1.0
+
+    model_name = [GLOBALS.generation_model_name, GLOBALS.validation_model_name]
+    model_nickname = [model_1th_nickname, model_2th_nickname]
 
     def __init__(self, agent_name):
         self.agent_name = agent_name

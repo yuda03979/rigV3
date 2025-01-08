@@ -1,7 +1,6 @@
 from src.rig import Rig
 from fastapi import FastAPI
 from dotenv import find_dotenv, load_dotenv
-import os
 
 load_dotenv(find_dotenv())
 
@@ -14,35 +13,30 @@ def get_rule_instance(free_text) -> dict:
     return rig.get_rule_instance(free_text)
 
 
-@app.get("/get_rule_types_names")
-def get_rule_types_names() -> list[str]:
+@app.get("/get_rules_names")
+def get_rules_names() -> list[str]:
     return rig.get_rules_names()
 
 
-@app.get("/get_rule_type_details")
-def get_rule_type_details(rule_name: str) -> dict:
+@app.get("/get_rule_details")
+def get_rule_details(rule_name: str) -> dict:
     return rig.get_rule_details(rule_name)
 
 
-@app.post("/set_rule_types")
-def set_rule_types() -> bool:
+@app.post("/set_rules")
+def set_rules() -> bool:
     return rig.set_rules()
 
 
-@app.post("/add_rule_type")
-def add_rule_type(json_file_name) -> bool:
+@app.post("/add_rule")
+def add_rule(json_file_name) -> bool:
     return rig.add_rule(json_file_name)
 
 
 @app.post("/tweak_parameters")
-def tweak_parameters(
-        rag_threshold=os.getenv("RAG_THRESHOLD"),
-        examples_rag_threshold=os.getenv("EXAMPLES_RAG_THRESHOLD")
-) -> bool:
-    return rig.tweak_parameters(
-        rag_threshold=float(rag_threshold),
-        examples_rag_threshold=float(examples_rag_threshold)
-    )
+def tweak_parameters(**kwargs) -> bool:
+    kwargs = {k: float(v) for k, v in kwargs.items()}
+    return rig.tweak_parameters(**kwargs)
 
 
 @app.post("/feedback")
