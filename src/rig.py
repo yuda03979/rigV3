@@ -11,6 +11,7 @@ import psutil
 import time
 from statistics import mean
 
+
 class Rig:
 
     def __init__(self):
@@ -55,7 +56,8 @@ class Rig:
         # init the agents flow (the data from old inference)
         self.agents_manager.new()
 
-        response = self.rule_instance_generator.predict(self.agents_manager, self.db_rules, self.db_examples, free_text=free_text)
+        response = self.rule_instance_generator.predict(self.agents_manager, self.db_rules, self.db_examples,
+                                                        free_text=free_text)
 
         self.feedback(rig_response=response.copy())
         return response
@@ -93,7 +95,7 @@ class Rig:
         # agent embed and add everything to the agent data
         rules_names = [rule['rule_name'] for rule in rules_fields]
         rules_names, rules_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].add_ruleS(rules_names,
-                                                                                                   chunks_to_embed)
+                                                                                                     chunks_to_embed)
         for i in range(len(rules_fields)):
             rules_fields[i]["embeddings"] = rules_embeddings[i]
 
@@ -170,12 +172,15 @@ class Rig:
                 id=rig_response["query"],
                 free_text=rig_response["query"],
                 rule_name=rig_response["rule_name"],
-                schema=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "schema"].iloc[0],
-                description=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "description"].iloc[0],
+                schema=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "schema"].iloc[
+                    0],
+                description=
+                self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "description"].iloc[0],
                 rule_instance_params=rig_response["rule_instance_params"]
             )
 
-            success, index, example_name, example_embeddings = self.agents_manager[GLOBALS.examples_finder_agent].add_example(
+            success, index, example_name, example_embeddings = self.agents_manager[
+                GLOBALS.examples_finder_agent].add_example(
                 example["free_text"])
             if success:
                 example["embeddings"] = example_embeddings
@@ -206,8 +211,7 @@ class Rig:
             batch_size=batch_size
         )
 
-
-    def get_system_data(self, duration=60, interval=1) -> dict:
+    def metadata(self, duration=60, interval=1) -> dict:
         """
         give basic data about the program and the resources usage
         :param duration:
@@ -222,7 +226,6 @@ class Rig:
         globals_data = vars(GLOBALS)
         agents_data = str(self.agents_manager)
         return dict(globals_data=globals_data, agents_data=agents_data, system_resources=system_resources)
-
 
     def monitor_system_resources(self, duration=60, interval=1):
         """
@@ -264,5 +267,3 @@ class Rig:
             'average_disk': round(mean(disk_usage), 2),
             'samples_collected': len(cpu_usage)
         }
-
-
