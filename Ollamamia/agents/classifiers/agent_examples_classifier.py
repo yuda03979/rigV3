@@ -96,6 +96,7 @@ class AgentExamplesClassifier:
         if not examples_list or len(examples_list) < 2:
             example1 = None
             example2 = None
+            examples_list = []
         else:
             example1 = examples_list[0][0]
             example2 = examples_list[1][0]
