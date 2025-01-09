@@ -1,10 +1,14 @@
+import ollama
+
 from .rule_instance_generator import RuleInstanceGenerator
 from Ollamamia.agents_manager import AgentsStore, AgentsManager
 from .globals import GLOBALS
 from .databases import DbRules, DbExamples, DbUnknowns
 from .new_type import AddNewTypes
 from .evaluation import evaluate_func
+from .metadata import metadata
 import pandas as pd
+import time
 
 
 class Rig:
@@ -20,6 +24,7 @@ class Rig:
 
         self.agents_manager = AgentsManager()  # ollamamia -> where the agents are
 
+        # init the agents
         self.agents_manager[GLOBALS.summarization_agent] = AgentsStore.agent_summarization
         self.agents_manager[GLOBALS.rule_classifier_agent] = AgentsStore.agent_rule_classifier
         self.agents_manager[GLOBALS.examples_finder_agent] = AgentsStore.agent_examples_classifier
@@ -49,12 +54,18 @@ class Rig:
             dict_keys(['query', 'message', 'is_error', 'agents_massages', 'total_infer_time', 'Uuid', 'dateTtime', 'rule_name', 'rule_instance_params', 'confidence', 'error_message', 'rule_instance'])
         """
         # init the agents flow (the data from old inference)
+        start = time.time()
         self.agents_manager.new()
 
         response = self.rule_instance_generator.predict(self.agents_manager, self.db_rules, self.db_examples,
                                                         free_text=free_text)
+        response['total_infer_time'] = time.time() - start
 
-        self.feedback(rig_response=response.copy())
+        if response.get('confidence') == 1:
+            self.feedback(rig_response=response.copy(), good=True)
+        else:
+            self.feedback(rig_response=response.copy())
+
         return response
 
     def get_rules_names(self) -> list:
@@ -87,7 +98,8 @@ class Rig:
 
         # get all the fields and the queries to embed
         if _eval:
-            rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types, folder=GLOBALS.evaluation_rules_folder_path)
+            rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types,
+                                                                    folder=GLOBALS.evaluation_rules_folder_path)
         else:
             rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types)
 
@@ -197,7 +209,7 @@ class Rig:
             jump=1,
             sleep_time_each_10_iter=30,
             batch_size=250,
-            set_eval_rules=True  # deleting existing rules!!!
+            set_eval_rules=True  # deleting existing rules!!! and loading the directory
     ):
         if set_eval_rules:
             self.set_rules(_eval=False)
@@ -212,13 +224,33 @@ class Rig:
             batch_size=batch_size
         )
 
-    def metadata(self, duration=60, interval=1) -> dict:
+    def metadata(self) -> dict:
         """
         give basic data about the program and the resources usage
-        :param duration:
-        :param interval:
-        :return:
+        :return: dict
         """
-        globals_data = vars(GLOBALS)
-        agents_data = str(self.agents_manager)
-        return dict(globals_data=globals_data, agents_data=agents_data)
+        globals_data = GLOBALS.__class__.__dict__
+        response = metadata(self)
+        response["globals_data"] = globals_data
+        response["ollama_models"] = dict(existing_models=ollama.list(), loaded_models=ollama.ps())
+        return response
+
+    def restart(self, db_rules: bool = False, db_examples: bool = False, db_unknown: bool = False):
+        """deleting the db's"""
+        if db_rules:
+            self.db_rules.init_df(force=True)
+        if db_examples:
+            self.db_examples.init_df(force=True)
+        if db_unknown:
+            self.db_unknown.init_df(force=True)
+        return True
+
+    def rephrase_query(self, query) -> str:
+        """
+        takes query and returning it professional, and translate it to english if needed.
+        it will slow down the system a little bit
+        :param query: str
+        :return: str
+        """
+        agent_message = self.agents_manager[GLOBALS.summarization_agent:query]
+        return str(agent_message.agent_message)

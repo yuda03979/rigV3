@@ -50,12 +50,29 @@ def evaluate(
         end_point: int | None = 2,  # -1 - all the data
         jump: int | None = 1,
         sleep_time_each_10_iter: int = 30,
-        batch_size: int = 250
+        batch_size: int = 250,
+        set_eval_rules=True  # deleting existing rules!!! and loading the directory
 ) -> dict:
     return rig.evaluate(
         start_point=int(start_point),
         end_point=end_point,  # None - all the data
         jump=jump,
         sleep_time_each_10_iter=int(sleep_time_each_10_iter),
-        batch_size=int(batch_size)
+        batch_size=int(batch_size),
+        set_eval_rules=set_eval_rules
     )
+
+
+@app.get("/metadata")
+def metadata() -> dict:
+    return rig.metadata()
+
+
+@app.post("/restart")
+def restart(**kwargs) -> bool:
+    return rig.restart(**kwargs)
+
+
+@app.post("/rephrase_query")
+def rephrase_query(query: str) -> str:
+    return rig.rephrase_query(query)

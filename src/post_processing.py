@@ -1,7 +1,3 @@
-from typing import Tuple
-from xml.sax import default_parser_list
-
-
 def clean_text(text):
     """Remove all non-alphanumeric characters and convert to lowercase."""
     return ''.join(char.lower() for char in text if char.isalnum())
@@ -24,6 +20,7 @@ def post_processing(type_name: str, model_response: dict, schema: dict, default_
 
     Returns:
         dict: The updated default rule instance with corrected values.
+        bool: True if 50% of the answer is null
     """
     # Normalize empty values in the model response
     model_response = {

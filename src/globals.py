@@ -45,6 +45,7 @@ class Globals:
 
     rules_folder_path = os.path.join(project_dir, "rule_types")
 
+    # evaluation data
     evaluation_rules_folder_path = os.path.join(eval_dir, "rule_types")
     evaluation_data_path = os.path.join(eval_dir, "evaluation_data.csv")
     evaluation_output_dir = os.path.join(eval_dir, "eval", "output")
