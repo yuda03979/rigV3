@@ -36,6 +36,12 @@ validation:
 ```
 wget https://huggingface.co/tiiuae/Falcon3-3B-Instruct-GGUF/resolve/main/Falcon3-3B-Instruct-q4_k_m.gguf?download=true -O Falcon3-3B-Instruct-q4_k_m.gguf
 ```
+
+smallm2
+```
+wget https://huggingface.co/lmstudio-community/SmolLM2-1.7B-Instruct-GGUF/resolve/main/SmolLM2-1.7B-Instruct-Q4_K_M.gguf?download=true -O SmolLM2-1.7B-Instruct-Q4_K_M.gguf
+```
+
 and place them in the rig_modelfile directory (or change the path inside the modelfile. for docker its better they're together. and you can delete the file after - just keep the directory) 
 
 but you also can download the models from the drive (there is also the modelfiles)

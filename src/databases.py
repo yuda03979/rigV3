@@ -121,3 +121,18 @@ class DbUnknowns(DbBase):
         Initializes the examples database by loading the data from the specified database path.
         """
         self.init_df()
+
+
+class DbSites(DbBase):
+    """
+    Class for managing the examples database. Inherits from DbBase and specifies
+    the database path and columns for examples.
+    """
+    db_path = GLOBALS.db_site_path
+    columns = ["site", "site_id", "embeddings"]
+
+    def __init__(self):
+        """
+        Initializes the examples database by loading the data from the specified database path.
+        """
+        self.init_df()

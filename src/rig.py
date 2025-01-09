@@ -3,7 +3,7 @@ import ollama
 from .rule_instance_generator import RuleInstanceGenerator
 from Ollamamia.agents_manager import AgentsStore, AgentsManager
 from .globals import GLOBALS
-from .databases import DbRules, DbExamples, DbUnknowns
+from .databases import DbRules, DbExamples, DbUnknowns, DbSites
 from .new_type import AddNewTypes
 from .evaluation import evaluate_func
 from .metadata import metadata
@@ -18,6 +18,7 @@ class Rig:
         self.db_rules = DbRules()
         self.db_examples = DbExamples()
         self.db_unknown = DbUnknowns()
+        self.db_sites = DbSites()
 
         self.add_new_types = AddNewTypes()
         self.rule_instance_generator = RuleInstanceGenerator()
@@ -25,6 +26,8 @@ class Rig:
         self.agents_manager = AgentsManager()  # ollamamia -> where the agents are
 
         # init the agents
+
+        self.agents_manager[GLOBALS.site_agent] = AgentsStore.agent_site_classifier
         self.agents_manager[GLOBALS.summarization_agent] = AgentsStore.agent_summarization
         self.agents_manager[GLOBALS.rule_classifier_agent] = AgentsStore.agent_rule_classifier
         self.agents_manager[GLOBALS.examples_finder_agent] = AgentsStore.agent_examples_classifier
@@ -34,6 +37,11 @@ class Rig:
         rules_names = self.db_rules.df["rule_name"].tolist()
         embedded_rules = self.db_rules.df["embeddings"].tolist()
         self.agents_manager[GLOBALS.rule_classifier_agent].add_embedded_rules(rules_names, embedded_rules)
+
+        # add existing rules into agent
+        sites_names = self.db_sites.df["site"].tolist()
+        embedded_sites = self.db_sites.df["embeddings"].tolist()
+        self.agents_manager[GLOBALS.site_agent].add_embedded_sites(sites_names, embedded_sites)
 
         # add existing examples into agent
         examples_names = self.db_examples.df["free_text"].tolist()
@@ -57,8 +65,12 @@ class Rig:
         start = time.time()
         self.agents_manager.new()
 
-        response = self.rule_instance_generator.predict(self.agents_manager, self.db_rules, self.db_examples,
-                                                        free_text=free_text)
+        response = self.rule_instance_generator.predict(
+            self.agents_manager,
+            self.db_rules,
+            self.db_examples,
+            free_text=free_text
+        )
         response['total_infer_time'] = time.time() - start
 
         if response.get('confidence') == 1:
@@ -66,92 +78,33 @@ class Rig:
         else:
             self.feedback(rig_response=response.copy())
 
+        # if site or Site exist, get the closest site using agent, and get the site_id from the db.
+        def get_site_id(site_field='site'):
+            if not response["is_error"] and response["rule_instance"]["params"].get(site_field) not in [None, 'null']:
+                site = self.db_sites.df[
+                    self.db_sites.df[site_field] == self.agents_manager[GLOBALS.site_agent:str(response["rule_instance"]["params"][site_field])]]['site_id'].iloc[0]
+                response["rule_instance"]["params"][site_field] = site
+                return True
+            return False
+
+        if not get_site_id('site'):
+            get_site_id('Site')
+
         return response
-
-    def get_rules_names(self) -> list:
-        """
-        Retrieves all rule names from the rule database.
-        Returns:
-            list: A list of rule names stored in the rules database.
-        """
-        return self.db_rules.df['rule_name'].tolist()
-
-    def get_rule_details(self, rule_name: str) -> dict:
-        """
-        Fetches details of a specific rule.
-        Args:
-            rule_name (str): The name of the rule to retrieve.
-        Returns:
-            dict: A dictionary containing the rule's schema, description, and other metadata.
-        """
-        return self.db_rules.df[self.db_rules.df['rule_name'] == rule_name].to_dict(orient='records')[0]
-
-    def set_rules(self, rule_types: list[dict] | None = None, _eval=False) -> bool:
-        """
-        Loads and embeds new rules into the rule database and agent.
-        Args:
-            rule_types (list[dict] | None): A list of dictionaries representing new rules.
-        Returns:
-            bool: True if the rules were successfully added and saved.
-            :param _eval: if loading for evaluation.
-        """
-
-        # get all the fields and the queries to embed
-        if _eval:
-            rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types,
-                                                                    folder=GLOBALS.evaluation_rules_folder_path)
-        else:
-            rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types)
-
-        # agent embed and add everything to the agent data
-        rules_names = [rule['rule_name'] for rule in rules_fields]
-        rules_names, rules_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].add_ruleS(rules_names,
-                                                                                                     chunks_to_embed)
-        for i in range(len(rules_fields)):
-            rules_fields[i]["embeddings"] = rules_embeddings[i]
-
-        # add to the db for future loading
-        self.db_rules.df = pd.DataFrame(rules_fields)
-        self.db_rules.save_db()
-        return True
-
-    def add_rule(self, rule_type: dict | str) -> bool:
-        """
-        Adds a new rule to the database and updates agent embeddings.
-        Args:
-            rule_type (dict | str): A dictionary containing rule fields, or a string
-                                    representing the rule.
-        Returns:
-            bool: True if the rule was successfully added.
-        """
-
-        # get all the fields and the queries to embed
-        rule_fields, words_to_embed = self.add_new_types.add(rule_type=rule_type)
-
-        # agent embed and add everything to the agent data
-        success, index, rule_name, rule_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].add_rule(
-            rule_fields["rule_name"], words_to_embed)
-        rule_fields["embeddings"] = rule_embeddings
-
-        # add to the db for future loading
-        if success:
-            if index:
-                self.db_rules.df.loc[index] = rule_fields
-            else:
-                self.db_rules.df.loc[len(self.db_rules.df)] = rule_fields
-            self.db_rules.save_db()
-
-        return True
 
     def tweak_parameters(
             self,
             classification_threshold: float = GLOBALS.classification_threshold,
             classification_temperature: float = GLOBALS.classification_temperature,
-            examples_rag_threshold: float = GLOBALS.examples_rag_threshold
+            examples_rag_threshold: float = GLOBALS.examples_rag_threshold,
+            site_rag_threshold: float = GLOBALS.site_rag_threshold,
+            site_temperature: float = GLOBALS.site_temperature,
     ) -> bool:
         GLOBALS.classification_threshold = classification_threshold
         GLOBALS.examples_rag_threshold = examples_rag_threshold
         GLOBALS.classification_temperature = classification_temperature
+        GLOBALS.site_rag_threshold = site_rag_threshold,
+        GLOBALS.site_temperature = site_temperature,
         return True
 
     def feedback(self, rig_response: dict, good: bool = None) -> bool:
@@ -229,21 +182,26 @@ class Rig:
         give basic data about the program and the resources usage
         :return: dict
         """
-        globals_data = {str(k): str(v) for k,v in GLOBALS.__class__.__dict__.items()}
+        globals_data = {str(k): str(v) for k, v in GLOBALS.__class__.__dict__.items()}
         response = metadata(self)
         response["globals_data"] = globals_data
         response["ollama_models"] = dict(existing_models=ollama.list(), loaded_models=ollama.ps())
         return response
 
-    def restart(self, db_rules: bool = False, db_examples: bool = False, db_unknown: bool = False):
+    def restart(self, db_rules: bool = False, db_examples: bool = False, db_sites: bool = False,
+                _db_unknown: bool = False):
         """deleting the db's"""
         if db_rules:
             self.db_rules.init_df(force=True)
         if db_examples:
             self.db_examples.init_df(force=True)
-        if db_unknown:
+        if db_sites:
+            self.db_sites.init_df(force=True)
+        if _db_unknown:
             self.db_unknown.init_df(force=True)
         return True
+
+
 
     def rephrase_query(self, query) -> str:
         """
@@ -254,3 +212,153 @@ class Rig:
         """
         agent_message = self.agents_manager[GLOBALS.summarization_agent:query]
         return str(agent_message.agent_message)
+
+######################################
+
+    def get_rules_names(self) -> list:
+        """
+        Retrieves all rule names from the rule database.
+        Returns:
+            list: A list of rule names stored in the rules database.
+        """
+        return self.db_rules.df['rule_name'].tolist()
+
+    def get_rule_details(self, rule_name: str) -> dict:
+        """
+        Fetches details of a specific rule.
+        Args:
+            rule_name (str): The name of the rule to retrieve.
+        Returns:
+            dict: A dictionary containing the rule's schema, description, and other metadata.
+        """
+        return self.db_rules.df[self.db_rules.df['rule_name'] == rule_name].to_dict(orient='records')[0]
+
+    def set_rules(self, rule_types: list[dict] | None = None, _eval=False) -> bool:
+        """
+        Loads and embeds new rules into the rule database and agent.
+        Args:
+            rule_types (list[dict] | None): A list of dictionaries representing new rules.
+        Returns:
+            bool: True if the rules were successfully added and saved.
+            :param _eval: if loading for evaluation.
+        """
+
+        # get all the fields and the queries to embed
+        if _eval:
+            rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types,
+                                                                    folder=GLOBALS.evaluation_rules_folder_path)
+        else:
+            rules_fields, chunks_to_embed = self.add_new_types.load(rule_types=rule_types)
+
+        # agent embed and add everything to the agent data
+        rules_names = [rule['rule_name'] for rule in rules_fields]
+        rules_names, rules_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].add_ruleS(rules_names,
+                                                                                                     chunks_to_embed)
+        for i in range(len(rules_fields)):
+            rules_fields[i]["embeddings"] = rules_embeddings[i]
+
+        # add to the db for future loading
+        self.db_rules.df = pd.DataFrame(rules_fields)
+        self.db_rules.save_db()
+        return True
+
+    def add_rule(self, rule_type: dict | str) -> bool:
+        """
+        Adds a new rule to the database and updates agent embeddings.
+        Args:
+            rule_type (dict | str): A dictionary containing rule fields, or a string
+                                    representing the rule.
+        Returns:
+            bool: True if the rule was successfully added.
+        """
+
+        # get all the fields and the queries to embed
+        rule_fields, words_to_embed = self.add_new_types.add(rule_type=rule_type)
+
+        # agent embed and add everything to the agent data
+        success, index, rule_name, rule_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].add_rule(
+            rule_fields["rule_name"], words_to_embed)
+        rule_fields["embeddings"] = rule_embeddings
+
+        # add to the db for future loading
+        if success:
+            if index:
+                self.db_rules.df.loc[index] = rule_fields
+            else:
+                self.db_rules.df.loc[len(self.db_rules.df)] = rule_fields
+            self.db_rules.save_db()
+        return True
+
+    def remove_rule(self, rule_name: str):
+        """
+        Removes a rule from the rule database and the agent based on its name.
+
+        Args:
+            rule_name (str): The name of the rule to remove.
+
+        Returns:
+            bool: True if the rule was successfully removed, False if the rule wasn't found.
+        """
+        if rule_name not in self.db_rules.df['rule_name'].values:
+            return False
+
+        # Remove the rule
+        self.db_rules.df = self.db_rules.df[self.db_rules.df['rule_name'] != rule_name]
+
+        # Reset the index after removal
+        self.db_rules.df = self.db_rules.df.reset_index(drop=True)
+        if self.agents_manager[GLOBALS.rule_classifier_agent].remove_rule(rule_name):
+            return True
+
+    ######################################
+    def add_sites(self, sites: list[dict]):
+        """
+        REMOVE PREVIOUS SITES!
+        Loads and embeds new rules into the rule database and agent.
+        Args:
+            sites (list[dict]: A list of dictionaries representing new sites.
+        Returns:
+            bool: True if the sites were successfully added and saved.
+        expected = {'site': 'ashdod', 'site_id': __site_id__}
+        """
+
+        # agent embed and add everything to the agent data
+        sites_names = [site_dict["site"] for site_dict in sites]
+        sites_names, sites_embeddings = self.agents_manager[GLOBALS.site_classifier_agent].add_siteS(sites_names)
+        for i in range(len(sites)):
+            sites[i]["embeddings"] = sites_embeddings[i]
+
+        # add to the db for future loading
+        self.db_sites.df = pd.DataFrame(sites)
+        self.db_sites.save_db()
+        return True
+
+    def add_site(self, site: dict):
+        # expected = {'site': 'ashdod', 'site_id': __site_id__}
+        success, index, rule_name, rule_embeddings = self.agents_manager[GLOBALS.site_agent].add_rule(site["site"])
+        site["embeddings"] = rule_embeddings
+
+        # add to the db for future loading
+        if success:
+            if index:
+                self.db_rules.df.loc[index] = site
+            else:
+                self.db_rules.df.loc[len(self.db_rules.df)] = site
+            self.db_rules.save_db()
+        return True
+        pass
+
+    def remove_site(self, site_name: str):
+        if site_name not in self.db_sites.df['site'].values:
+            return False
+
+        # Remove the rule
+        self.db_sites.df = self.db_sites.df[self.db_sites.df['site'] != site_name]
+
+        # Reset the index after removal
+        self.db_sites.df = self.db_sites.df.reset_index(drop=True)
+        if self.agents_manager[GLOBALS.site_agent].remove_site(site_name):
+            return True
+
+    def get_existing_site(self) -> list:
+        return [{'site': site, 'site_id': site_id} for site, site_id in zip(self.db_sites.df['site'].tolist(), self.db_sites.df['site_id'].tolist())]

@@ -82,6 +82,30 @@ class BasicRag:
         self.samples_id = samples_ids
         self.samples_embeddings = sample_embeddings
 
+    def remove_sample(self, sample_id: str) -> bool:
+        """
+        Removes a sample and its corresponding embedding from the database.
+
+        Args:
+            sample_id (str): The ID of the sample to remove
+
+        Returns:
+            bool: True if sample was successfully removed, False if sample wasn't found
+        """
+        try:
+            # Find the index of the sample_id
+            index = self.samples_id.index(sample_id)
+
+            # Remove both the sample_id and its corresponding embedding
+            self.samples_id.pop(index)
+            self.samples_embeddings.pop(index)
+
+            return True
+        except ValueError:
+            # Return False if sample_id wasn't found
+            return False
+
+
     def get_close_types_names(
             self,
             query_embedding: list[float],

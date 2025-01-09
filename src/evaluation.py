@@ -297,8 +297,7 @@ def evaluate_func(
                         collect_error_data('score_rule_instance_name', row_id, expected_print, response_print,
                                            free_text,
                                            differences, correct_rule_name, rig_response["rule_name"], rule_name))
-                if binary_score:
-                    self.feedback(rig_response=rig_response, good=True)
+
                 # Prepare results for this row
                 new_row = {
                     "id": row_id,

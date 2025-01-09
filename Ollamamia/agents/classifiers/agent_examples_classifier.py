@@ -21,7 +21,6 @@ class AgentExamplesClassifier:
         task (str): Type of task the model performs ("embed")
         max_examples (int): Maximum number of examples that can be stored (100,000)
         prefix (str): Prefix added to improve RAG accuracy
-        num_examples (int): Number of examples to maintain (100,000)
         softmax (bool): Whether to apply softmax to similarity scores (False)
         softmax_temperature (float): Temperature parameter for softmax (0)
     """
@@ -33,9 +32,8 @@ class AgentExamplesClassifier:
     model_name = GLOBALS.rag_model_name  # "snowflake-arctic-embed:137m"
     task = "embed"
 
-    max_examples: int = 10_000
+    max_examples: int = 100_000
     prefix: str = "classification: \n"
-    num_examples: int = 100_000
     softmax: bool = False
     softmax_temperature: float = 0
 
@@ -48,7 +46,7 @@ class AgentExamplesClassifier:
         """
         self.agent_name = agent_name
         self.model_nickname = f"{agent_name}_{self.model_nickname}"
-        self.basic_rag = BasicRag(max_rules=self.num_examples)
+        self.basic_rag = BasicRag(max_rules=self.max_examples)
         # initializing the model
         MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]
         MODELS_MANAGER[self.model_nickname].config.prefix = self.prefix  # add prefix for improving the rag accuracy

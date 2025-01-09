@@ -23,6 +23,7 @@ def validate_numeric(var_name, value_type):
 
 class Globals:
     # those 4 are just a nickname:
+    site_agent = "site_agent"
     summarization_agent = "summarization"
     rule_classifier_agent = "rule_classifier"
     examples_finder_agent = "examples_finder"
@@ -37,18 +38,20 @@ class Globals:
     classification_threshold = validate_numeric("CLASSIFICATION_THRESHOLD", value_type=float)
     classification_temperature = validate_numeric("CLASSIFICATION_TEMPERATURE", value_type=float)
     examples_rag_threshold = validate_numeric("EXAMPLES_RAG_THRESHOLD", value_type=float)
+    site_rag_threshold = validate_numeric("SITE_RAG_THRESHOLD", value_type=float)
+    site_temperature = validate_numeric("SITE_TEMPERATURE", value_type=float)
 
     # things that should be in project_dir
     db_rules_path = os.path.join(project_dir, "db_rules.csv")
     db_examples_path = os.path.join(project_dir, "db_examples.csv")
     db_unknowns_path = os.path.join(project_dir, "db_unknowns.csv")
+    db_site_path = os.path.join(project_dir, "db_sites.csv")
 
     rules_folder_path = os.path.join(project_dir, "rule_types")
 
     # evaluation data
     evaluation_rules_folder_path = os.path.join(eval_dir, "rule_types")
     evaluation_data_path = os.path.join(eval_dir, "evaluation_data.csv")
-    evaluation_output_dir = os.path.join(eval_dir, "eval", "output")
-
+    evaluation_output_dir = os.path.join(eval_dir, "output")
 
 GLOBALS = Globals()

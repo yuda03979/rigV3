@@ -3,6 +3,7 @@ from Ollamamia.agents.classifiers.agent_examples_classifier import AgentExamples
 from Ollamamia.agents.generators.agent_generate_schema import AgentGenerateSchema
 from Ollamamia.agents.generators.async_agent_generate_scema import AsyncAgentGenerateSchema
 from Ollamamia.agents.generators.agent_summarization import AgentSummarize
+from Ollamamia.agents.classifiers.agent_site import AgentSiteClassifier
 from Ollamamia.globals_dir.utils import AgentsFlow
 
 import enum
@@ -28,6 +29,7 @@ class AgentsStore(enum.Enum):
     agent_examples_classifier = AgentExamplesClassifier
     async_agent_generate_schema = AsyncAgentGenerateSchema
     agent_summarization = AgentSummarize
+    agent_site_classifier = AgentSiteClassifier
 
 
 class AgentsManager:

@@ -1,11 +1,13 @@
 from src.rig import Rig
 from fastapi import FastAPI
 from dotenv import find_dotenv, load_dotenv
+import nest_asyncio
 
 load_dotenv(find_dotenv())
 
 app = FastAPI()
 rig = Rig()
+nest_asyncio.apply()
 
 
 @app.post("/get_rule_instance")

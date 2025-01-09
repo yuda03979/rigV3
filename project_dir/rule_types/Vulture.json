@@ -366,6 +366,16 @@
             "repositoryName": "",
             "mandatory": false,
             "selectableValue": []
+        },
+        {
+            "name": "site",
+            "type": "String",
+            "defaultValue": "",
+            "description": "",
+            "displayName": "",
+            "repositoryName": "",
+            "mandatory": false,
+            "selectableValue": []
         }
     ],
     "eventDetails": [

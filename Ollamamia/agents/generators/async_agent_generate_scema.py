@@ -114,15 +114,25 @@ class AsyncAgentGenerateSchema:
             example2=example2,
         )
 
+        # prompt2 = f"extract information as json according the schema: schema: {schema}, text: {query}: ```json"
+        prompt2 = prompt + "you should extract the information as json: ```json Here is the output for the given schema + free text:\n"
+
         # Run model inferences in parallel
         responses = await asyncio.gather(
             ASYNC_MODEL_MANAGER.infer_async(self.model_1th_nickname, prompt),
-            ASYNC_MODEL_MANAGER.infer_async(self.model_2th_nickname, prompt)
+            ASYNC_MODEL_MANAGER.infer_async(self.model_2th_nickname, prompt2)
         )
 
         response_model, response_model_2th = [r + "}" for r in responses]
         response, succeed = get_dict(response_model)
         response_2th, succeed_2th = get_dict(response_model_2th)
+
+        ##### optional
+        if succeed_2th:
+            response_2th = {k: (v if v is not None else 'null') for k, v in response_2th.items()}
+        # print("model: ", response)
+        # print("model_2th: ", response_2th)
+        ##########
 
         additional_data = dict(
             model1=dict(dict_response=response, succeed=succeed, str_response=response_model).copy(),
@@ -132,7 +142,6 @@ class AsyncAgentGenerateSchema:
 
         #######
         # confidence
-
         confidence = -1
         if succeed_2th and succeed:
             if str(response).lower() == str(response_2th).lower():
