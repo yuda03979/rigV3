@@ -323,7 +323,7 @@ def evaluate_func(
                 }
                 rows.append(new_row)
             except Exception as e:
-                # raise Exception(e)
+                raise
                 print(f"Error processing row {i + 1}, free_text: {free_text}, Error: {e}")
                 errors = f"{errors}, Error: {e}"
 

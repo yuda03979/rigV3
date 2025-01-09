@@ -229,7 +229,7 @@ class Rig:
         give basic data about the program and the resources usage
         :return: dict
         """
-        globals_data = GLOBALS.__class__.__dict__
+        globals_data = {str(k): str(v) for k,v in GLOBALS.__class__.__dict__.items()}
         response = metadata(self)
         response["globals_data"] = globals_data
         response["ollama_models"] = dict(existing_models=ollama.list(), loaded_models=ollama.ps())

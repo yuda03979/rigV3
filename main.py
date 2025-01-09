@@ -69,8 +69,8 @@ def metadata() -> dict:
 
 
 @app.post("/restart")
-def restart(**kwargs) -> bool:
-    return rig.restart(**kwargs)
+def restart(db_rules=False, db_examples=False, db_unknown=False) -> bool:
+    return rig.restart(db_rules=db_rules, db_examples=db_examples, db_unknown=db_unknown)
 
 
 @app.post("/rephrase_query")
