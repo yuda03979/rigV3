@@ -56,12 +56,14 @@ class AgentGenerateSchema:
         response_model = MODELS_MANAGER[self.model_nickname].infer(prompt) + "}"
         response, succeed = get_dict(response_model)
 
+        confidence = -1  # undefined
+
         agent_message = AgentMessage(
             agent_name=self.agent_name,
             agent_description=self.description,
             agent_input=query,
             succeed=succeed,
-            agent_message=response,
+            agent_message=[response, confidence],
             message_model=response_model,
             infer_time=time.time() - start
         )

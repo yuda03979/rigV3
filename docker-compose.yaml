@@ -30,8 +30,9 @@ services:
     depends_on:
       - ollama
     environment:
-      - DOCKER=true
       - OLLAMA_HOST=http://ollama:11434
+      - DOCKER=true
+      - RUN_ASYNC_MODELS=${RUN_ASYNC_MODELS}
       - PROJECT_DIR=${PROJECT_DIR}
       - EVAL_DIR=${EVAL_DIR}
       - CLASSIFICATION_THRESHOLD=${CLASSIFICATION_THRESHOLD}

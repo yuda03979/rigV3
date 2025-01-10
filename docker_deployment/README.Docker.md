@@ -41,13 +41,10 @@ smallm2
 ```
 wget https://huggingface.co/lmstudio-community/SmolLM2-1.7B-Instruct-GGUF/resolve/main/SmolLM2-1.7B-Instruct-Q4_K_M.gguf?download=true -O SmolLM2-1.7B-Instruct-Q4_K_M.gguf
 ```
+remember to rename this model (it has dot in the middle...)
 
 and place them in the rig_modelfile directory (or change the path inside the modelfile. for docker its better they're together. and you can delete the file after - just keep the directory) 
 
-but you also can download the models from the drive (there is also the modelfiles)
-```angular2html
-https://drive.google.com/drive/folders/1Jm97UnsVPvk_QpjnZi7ItNHHuqXsPhGq
-```
 
 ###### place this on the .env as GGUF_AND_MODELFILE_LOCATION
 
@@ -102,8 +99,8 @@ it uses fastAPI.
 - functions:
 1. get_rule_instance
 ```
-  curl -X 'POST' \
-  'http://0.0.0.0:8000/get_rule_instance?free_text=system%20failure%20severity%205' \
+curl -X 'POST' \
+  'http://0.0.0.0:80/get_rule_instance?free_text=We%20need%20to%20create%20an%20instance%20of%20Network%20Security%20Breach.%20The%20issue%20pertains%20to%20a%20network%20security%20breach.%20The%20coding%20efficiency%20is%20merely%20average%20and%20the%20problem-solving%20skills%20are%20good.%20Code%20readability,%20unfortunately,%20is%20poor.%20However,%20the%20team%20collaboration%20skills%20are%20excellent.%20The%20debugging%20expertise%20can%20be%20rated%20as%20high.%20The%20severity%20of%20this%20event?%20Well,%20it%27s%20a%20seven.%20As%20for%20the%20framework%20knowledge,%20it%27s...%20well,%20let%27s%20leave%20it%20blank%20for%20now.' \
   -H 'accept: application/json' \
   -d ''
 ```

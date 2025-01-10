@@ -23,6 +23,9 @@ def validate_numeric(var_name, value_type):
 
 class Globals:
     # those 4 are just a nickname:
+
+    run_async_models = True if os.getenv("RUN_ASYNC_MODELS").lower() == "true" else False
+
     site_agent = "site_agent"
     summarization_agent = "summarization"
     rule_classifier_agent = "rule_classifier"

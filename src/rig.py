@@ -31,7 +31,12 @@ class Rig:
         self.agents_manager[GLOBALS.summarization_agent] = AgentsStore.agent_summarization
         self.agents_manager[GLOBALS.rule_classifier_agent] = AgentsStore.agent_rule_classifier
         self.agents_manager[GLOBALS.examples_finder_agent] = AgentsStore.agent_examples_classifier
-        self.agents_manager[GLOBALS.rule_instance_generator_agent] = AgentsStore.async_agent_generate_schema
+
+        if GLOBALS.run_async_models:
+            self.agents_manager[GLOBALS.rule_instance_generator_agent] = AgentsStore.async_agent_generate_schema
+        else:
+            self.agents_manager[GLOBALS.rule_instance_generator_agent] = AgentsStore.agent_generate_schema
+
 
         # add existing rules into agent
         rules_names = self.db_rules.df["rule_name"].tolist()
