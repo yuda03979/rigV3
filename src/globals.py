@@ -54,4 +54,5 @@ class Globals:
     evaluation_data_path = os.path.join(eval_dir, "evaluation_data.csv")
     evaluation_output_dir = os.path.join(eval_dir, "output")
 
+
 GLOBALS = Globals()

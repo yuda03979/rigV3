@@ -42,7 +42,7 @@ class AgentSiteClassifier:
         """
         self.agent_name = agent_name
         self.model_nickname = f"{agent_name}_AgentSiteClassifier_{GLOBALS.rag_model_name}"
-        self.basic_rag = BasicRag(max_sites=self.max_sites)
+        self.basic_rag = BasicRag(max_samples=self.max_sites)
         # initializing the model
         MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]
         MODELS_MANAGER[self.model_nickname].config.prefix = self.prefix  # add prefix for improving the rag accuracy
@@ -107,7 +107,7 @@ class AgentSiteClassifier:
         else:
             sites_list = [(None, None)]
 
-        response = sites_list
+        response = sites_list[0][0]
 
         agent_message = AgentMessage(
             agent_name=self.agent_name,

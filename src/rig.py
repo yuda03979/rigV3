@@ -80,11 +80,20 @@ class Rig:
 
         # if site or Site exist, get the closest site using agent, and get the site_id from the db.
         def get_site_id(site_field='site'):
+            # if there's no error and site exist
             if not response["is_error"] and response["rule_instance"]["params"].get(site_field) not in [None, 'null']:
-                site = self.db_sites.df[
-                    self.db_sites.df[site_field] == self.agents_manager[GLOBALS.site_agent:str(response["rule_instance"]["params"][site_field])]]['site_id'].iloc[0]
-                response["rule_instance"]["params"][site_field] = site
-                return True
+                # get similar site form agent
+                agent_message = self.agents_manager[
+                         GLOBALS.site_agent:str(response["rule_instance"]["params"][site_field])]
+                site_value = agent_message.agent_message
+                # if agent recognizes it:
+                if site_value:
+                    matching_sites = self.db_sites.df[self.db_sites.df[site_field] == site_value]
+                    # if its in the data. dont really necessary
+                    if not matching_sites.empty:
+                        site = matching_sites['site_id'].iloc[0]
+                        response["rule_instance"]["params"][site_field] = site
+                        return True
             return False
 
         if not get_site_id('site'):
@@ -311,7 +320,7 @@ class Rig:
             return True
 
     ######################################
-    def add_sites(self, sites: list[dict]):
+    def set_sites(self, sites: list[dict]):
         """
         REMOVE PREVIOUS SITES!
         Loads and embeds new rules into the rule database and agent.
@@ -324,7 +333,7 @@ class Rig:
 
         # agent embed and add everything to the agent data
         sites_names = [site_dict["site"] for site_dict in sites]
-        sites_names, sites_embeddings = self.agents_manager[GLOBALS.site_classifier_agent].add_siteS(sites_names)
+        sites_names, sites_embeddings = self.agents_manager[GLOBALS.site_agent].add_siteS(sites_names)
         for i in range(len(sites)):
             sites[i]["embeddings"] = sites_embeddings[i]
 
@@ -335,16 +344,16 @@ class Rig:
 
     def add_site(self, site: dict):
         # expected = {'site': 'ashdod', 'site_id': __site_id__}
-        success, index, rule_name, rule_embeddings = self.agents_manager[GLOBALS.site_agent].add_rule(site["site"])
+        success, index, rule_name, rule_embeddings = self.agents_manager[GLOBALS.site_agent].add_site(site["site"])
         site["embeddings"] = rule_embeddings
 
         # add to the db for future loading
         if success:
             if index:
-                self.db_rules.df.loc[index] = site
+                self.db_sites.df.loc[index] = site
             else:
-                self.db_rules.df.loc[len(self.db_rules.df)] = site
-            self.db_rules.save_db()
+                self.db_sites.df.loc[len(self.db_sites.df)] = site
+            self.db_sites.save_db()
         return True
         pass
 
@@ -360,5 +369,5 @@ class Rig:
         if self.agents_manager[GLOBALS.site_agent].remove_site(site_name):
             return True
 
-    def get_existing_site(self) -> list:
+    def get_existing_sites(self) -> list:
         return [{'site': site, 'site_id': site_id} for site, site_id in zip(self.db_sites.df['site'].tolist(), self.db_sites.df['site_id'].tolist())]

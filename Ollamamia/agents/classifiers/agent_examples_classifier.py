@@ -46,7 +46,7 @@ class AgentExamplesClassifier:
         """
         self.agent_name = agent_name
         self.model_nickname = f"{agent_name}_{self.model_nickname}"
-        self.basic_rag = BasicRag(max_rules=self.max_examples)
+        self.basic_rag = BasicRag(max_samples=self.max_examples)
         # initializing the model
         MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]
         MODELS_MANAGER[self.model_nickname].config.prefix = self.prefix  # add prefix for improving the rag accuracy

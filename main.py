@@ -15,26 +15,6 @@ def get_rule_instance(free_text) -> dict:
     return rig.get_rule_instance(free_text)
 
 
-@app.get("/get_rules_names")
-def get_rules_names() -> list[str]:
-    return rig.get_rules_names()
-
-
-@app.get("/get_rule_details")
-def get_rule_details(rule_name: str) -> dict:
-    return rig.get_rule_details(rule_name)
-
-
-@app.post("/set_rules")
-def set_rules() -> bool:
-    return rig.set_rules()
-
-
-@app.post("/add_rule")
-def add_rule(json_file_name) -> bool:
-    return rig.add_rule(json_file_name)
-
-
 @app.post("/tweak_parameters")
 def tweak_parameters(**kwargs) -> bool:
     kwargs = {k: float(v) for k, v in kwargs.items()}
@@ -70,11 +50,75 @@ def metadata() -> dict:
     return rig.metadata()
 
 
-@app.post("/restart")
-def restart(db_rules=False, db_examples=False, db_unknown=False) -> bool:
-    return rig.restart(db_rules=db_rules, db_examples=db_examples, db_unknown=db_unknown)
-
-
 @app.post("/rephrase_query")
 def rephrase_query(query: str) -> str:
     return rig.rephrase_query(query)
+
+
+@app.post("/restart")
+def restart(db_rules=False, db_examples=False, db_sites=False, _db_unknown=False) -> bool:
+    return rig.restart(db_rules=db_rules, db_examples=db_examples, db_sites=db_sites, _db_unknown=_db_unknown)
+
+
+#############################
+
+
+@app.get("/get_rules_names")
+def get_rules_names() -> list[str]:
+    return rig.get_rules_names()
+
+
+@app.get("/get_rule_details")
+def get_rule_details(rule_name: str) -> dict:
+    return rig.get_rule_details(rule_name)
+
+
+@app.post("/set_rules")
+def set_rules() -> bool:
+    return rig.set_rules()
+
+
+@app.post("/add_rule")
+def add_rule(json_file_name) -> bool:
+    return rig.add_rule(json_file_name)
+
+@app.post("/remove_rule")
+def remove_rule(rule_name: str) -> bool:
+    """
+    API endpoint to remove a rule by its name.
+    """
+    result = rig.remove_rule(rule_name)
+    return result
+
+
+@app.post("/set_sites")
+def set_sites(sites: list) -> bool:
+    """
+    API endpoint to add multiple sites.
+    """
+    return rig.set_sites(sites)
+
+
+@app.post("/add_site")
+def add_site(site: dict) -> bool:
+    """
+    API endpoint to add a single site.
+    """
+    return rig.add_site(site)
+
+
+@app.post("/remove_site")
+def remove_site(site_name: str) -> bool:
+    """
+    API endpoint to remove a site by its name.
+    """
+    result = rig.remove_site(site_name)
+    return result
+
+
+@app.get("/get_existing_sites")
+def get_existing_sites() -> list:
+    """
+    API endpoint to get a list of existing sites.
+    """
+    return rig.get_existing_sites()

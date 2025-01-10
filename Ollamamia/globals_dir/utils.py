@@ -292,3 +292,23 @@ def fix_unbalanced_braces(response: str) -> str:
         response += '}' * missing_close  # Add missing closing braces
 
     return response
+
+
+def compare_dicts(dict1, dict2):
+    NULL_VALUES = [
+        None, '', ' ', "null", "None", "none", "empty", "undefined", "nil",
+        "NaN", "nan", "n/a", "N/A", "na", "NA", "missing", "unknown", "void",
+        "blank", ".", "..", "...", "?", "int", "Int", "String", "string"
+    ]
+
+    def normalize(value):
+        if value in NULL_VALUES:
+            return 'null'
+        return str(value).strip().lower()
+
+    # Create copies
+    d1 = {k: normalize(v) for k, v in dict1.items()}
+    d2 = {k: normalize(v) for k, v in dict2.items()}
+    print('model: ', d1)
+    print('model2: ', d2)
+    return d1 == d2

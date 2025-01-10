@@ -42,7 +42,7 @@ class AgentRuleClassifier:
         """
         self.agent_name = agent_name
         self.model_nickname = f"{agent_name}_AgentRuleClassifier_{GLOBALS.rag_model_name}"
-        self.basic_rag = BasicRag(max_rules=self.max_rules)
+        self.basic_rag = BasicRag(max_samples=self.max_rules)
         # initializing the model
         MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]
         MODELS_MANAGER[self.model_nickname].config.prefix = self.prefix  # add prefix for improving the rag accuracy

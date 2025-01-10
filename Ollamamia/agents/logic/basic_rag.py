@@ -12,19 +12,19 @@ class BasicRag:
     like maximum capacity control and similarity scoring with optional softmax normalization.
 
     Attributes:
-        max_rules (int): Maximum number of samples that can be stored
+        max_samples (int): Maximum number of samples that can be stored
         samples_id (list[str]): List of sample identifiers
         samples_embeddings (list[list[float]]): List of embedding vectors corresponding to samples
     """
 
-    def __init__(self, max_rules: int):
+    def __init__(self, max_samples: int):
         """
         Initialize the BasicRag instance.
 
         Args:
-            max_rules (int): Maximum number of samples that can be stored in the database
+            max_samples (int): Maximum number of samples that can be stored in the database
         """
-        self.max_rules = max_rules
+        self.max_samples = max_samples
         self.samples_id = []
         self.samples_embeddings = []
 
@@ -33,7 +33,7 @@ class BasicRag:
         Add a single sample with its embedding to the database.
 
         If the sample_id already exists, it updates the existing entry.
-        If the database is full (reached max_rules), the addition fails.
+        If the database is full (reached max_samples), the addition fails.
 
         Args:
             sample_id (str): Unique identifier for the sample
@@ -54,9 +54,9 @@ class BasicRag:
             self.samples_embeddings[index] = sample_embeddings
             return success, index
 
-        # if you add more than self.max_rules, it will not add more. (its like 100_000 its kind of 35MB)
-        elif len(self.samples_id) >= self.max_rules:
-            print(f"cant add more rules! your db > {self.max_rules}")
+        # if you add more than self.max_samples, it will not add more. (its like 100_000 its kind of 35MB)
+        elif len(self.samples_id) >= self.max_samples:
+            print(f"cant add more rules! your db > {self.max_samples}")
             success = False
             return success, index
 

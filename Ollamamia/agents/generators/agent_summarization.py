@@ -26,7 +26,8 @@ class AgentSummarize:
         self.prompt = ("“Please take the following text and remove redundant words like ua, kind of, i think, "
                        "etc. the message should be clear and strait forward. "
                        "if the text is not in English, "
-                       "translate it into English. the text:")
+                       "translate it into English. "
+                       "dont explain your self. just do your job. \nthe text:")
 
         # initializing the model
         MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]

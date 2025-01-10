@@ -47,7 +47,7 @@ class RuleInstanceGenerator:
         response, mismatch_rule_name = self.__generate(agents_manager, db_rules, db_examples, rule_name, free_text)
 
         if mismatch_rule_name and len(rule_names_list) >= 2:
-            print(rule_names_list[:2])
+            # print(rule_names_list[:2])
             rule_name = rule_names_list[1][0]
             response2, mismatch_rule_name = self.__generate(agents_manager, db_rules, db_examples, rule_name, free_text)
 
@@ -144,7 +144,7 @@ class RuleInstanceGenerator:
         example1 = agent_message.agent_message[0]
         example2 = agent_message.agent_message[1]
 
-        if example1 is not None or example2 is not None:
+        if example1 is not None and example2 is not None:
             example1_free_text, example1_schema, example1_output = db_examples.get_example(example1)
             example2_free_text, example2_schema, example2_output = db_examples.get_example(example2)
 
