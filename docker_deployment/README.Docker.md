@@ -168,7 +168,7 @@ curl -X POST "http://127.0.0.1:80/feedback" -H "Content-Type: application/json" 
 
 h. **POST `/evaluate`**
 ```bash
-curl -X POST "http://127.0.0.1:80/evaluate" -H "Content-Type: application/json" -d '{"start_point": 0, "end_point": 2, "jump": 1, "batch_size": 250}'
+curl -X 'POST'   'http://0.0.0.0/evaluate?start_point=0&end_point=3&jump=1&sleep_time_each_10_iter=30&batch_size=250&set_eval_rules=true'   -H 'accept: application/json'   -d ''
 ```
 
 i. **GET `/metadata`**
