@@ -104,8 +104,12 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -d ''
 ```
+another example
+```
+curl -X 'POST'   'http://0.0.0.0:80/get_rule_instance?free_text=A%20situation%20with%20the%20ruleInstanceName%20of%20rodent%20examination%20delta%20needs%20to%20be%20investigated.%20We%27re%20dealing%20with%20a%20severity%20level%20of%20one.%20The%20tail%20bushiness%20is%20bristly,%20and%20um,%20the%20hunting%20stealth%20is%20low.%20However,%20there%27s%20no%20information%20on%20den%20construction,%20let%27s%20just%20say%20it%27s%20null.%20The%20howling%20pitch%20is%20two,%20and%20the%20nocturnal%20habits%20are%20very%20active.%20The%20prey%20diversity%20is%20four,%20and%20the%20speed%20bursts%20are%20something%20like%20fifteen.'   -H 'accept: application/json'   -d ''
+```
 output:
-{}
+dict with a lot of data...
 
 ```
 and the same all the functions. see how_to_docker.ipynb
