@@ -114,7 +114,9 @@ class AsyncAgentGenerateSchema:
             example2=example2,
         )
 
-        # prompt2 = f"extract information as json according the schema: schema: {schema}, text: {query}: ```json"
+        # prompt2 = (f"extract information as json according the schema. if field missing, then None."
+        #            f"stick to the schema! no extra fields! just fill the schema"
+        #            f": schema: {schema}, text: {query}: ```json")
         prompt2 = prompt + ("you should extract the information as json: ```json Here is the output for the given "
                             "schema + free text:\n")
 
