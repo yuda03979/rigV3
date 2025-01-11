@@ -1,10 +1,8 @@
-from Ollamamia.agents.classifiers.agent_rule_classifier import AgentRuleClassifier
-from Ollamamia.agents.classifiers.agent_examples_classifier import AgentExamplesClassifier
 from Ollamamia.agents.generators.agent_generate_schema import AgentGenerateSchema
 from Ollamamia.agents.generators.async_agent_generate_scema import AsyncAgentGenerateSchema
 from Ollamamia.agents.generators.agent_summarization import AgentSummarize
-from Ollamamia.agents.classifiers.agent_site import AgentSiteClassifier
 from Ollamamia.globals_dir.utils import AgentsFlow
+from Ollamamia.agents.classifiers.simple_classifier_agent import AgentSimpleClassifier
 
 import enum
 import time
@@ -24,12 +22,10 @@ class AgentsStore(enum.Enum):
         - async_agent_generate_schema: Async version of schema generation
         - agent_summarization: For text summarization
     """
-    agent_rule_classifier = AgentRuleClassifier
     agent_generate_schema = AgentGenerateSchema
-    agent_examples_classifier = AgentExamplesClassifier
     async_agent_generate_schema = AsyncAgentGenerateSchema
     agent_summarization = AgentSummarize
-    agent_site_classifier = AgentSiteClassifier
+    agent_simple_classifier = AgentSimpleClassifier
 
 
 class AgentsManager:
@@ -59,6 +55,7 @@ class AgentsManager:
         self.agents = {}
         self.agents_flow = None
         self.start = None
+        self.num_agent = iter(range(100))
 
     def add_agents(self, agent_nickname: str, agent_name: AgentsStore):
         """
@@ -167,3 +164,6 @@ class AgentsManager:
             models_loaded=models_loaded,
             models_nicknames=models_nicknames
         ))
+
+    def get_num_agents(self):
+        return next(self.num_agent)

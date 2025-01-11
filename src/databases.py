@@ -82,7 +82,7 @@ class DbExamples(DbBase):
     the database path and columns for examples.
     """
     db_path = GLOBALS.db_examples_path
-    columns = ["id", "free_text", "rule_name", "schema", "description", "rule_instance_params", "embeddings"]
+    columns = ["id", "free_text", "rule_name", "schema", "description", "rule_instance_params", "embeddings", 'usage']
 
     def __init__(self):
         """

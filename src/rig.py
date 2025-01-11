@@ -27,31 +27,13 @@ class Rig:
 
         # init the agents
 
-        self.agents_manager[GLOBALS.site_agent] = AgentsStore.agent_site_classifier
         self.agents_manager[GLOBALS.summarization_agent] = AgentsStore.agent_summarization
-        self.agents_manager[GLOBALS.rule_classifier_agent] = AgentsStore.agent_rule_classifier
-        self.agents_manager[GLOBALS.examples_finder_agent] = AgentsStore.agent_examples_classifier
+        self.agents_manager[GLOBALS.classifier_agent] = AgentsStore.agent_simple_classifier
 
         if GLOBALS.run_async_models:
             self.agents_manager[GLOBALS.rule_instance_generator_agent] = AgentsStore.async_agent_generate_schema
         else:
             self.agents_manager[GLOBALS.rule_instance_generator_agent] = AgentsStore.agent_generate_schema
-
-
-        # add existing rules into agent
-        rules_names = self.db_rules.df["rule_name"].tolist()
-        embedded_rules = self.db_rules.df["embeddings"].tolist()
-        self.agents_manager[GLOBALS.rule_classifier_agent].add_embedded_rules(rules_names, embedded_rules)
-
-        # add existing rules into agent
-        sites_names = self.db_sites.df["site"].tolist()
-        embedded_sites = self.db_sites.df["embeddings"].tolist()
-        self.agents_manager[GLOBALS.site_agent].add_embedded_sites(sites_names, embedded_sites)
-
-        # add existing examples into agent
-        examples_names = self.db_examples.df["free_text"].tolist()
-        embedded_examples = self.db_examples.df["embeddings"].tolist()
-        self.agents_manager[GLOBALS.examples_finder_agent].add_embedded_examples(examples_names, embedded_examples)
 
     def get_rule_instance(self, free_text: str) -> dict:
         """
@@ -89,36 +71,40 @@ class Rig:
             if not response["is_error"] and response["rule_instance"]["params"].get(site_field) not in [None, 'null']:
                 # get similar site form agent
                 agent_message = self.agents_manager[
-                         GLOBALS.site_agent:str(response["rule_instance"]["params"][site_field])]
-                site_value = agent_message.agent_message
+                    GLOBALS.classifier_agent].predict(
+                    query=str(response["rule_instance"]["params"][site_field]),
+                    samples_ids=self.db_sites.df['site'].tolist(),
+                    samples_embeddings=self.db_sites.df['embeddings'].tolist()
+                )
+                site_value = agent_message.agent_message[0][0]
+                if site_value is None or agent_message.agent_message[0][1] < GLOBALS.site_rag_threshold:
+                    response["rule_instance"]["params"][site_field] = site_value[0][0]
+                    response['is_error'] = True
+                    response["error_message"] = response["error_message"] + (f' closest site didnt succeed the '
+                                                                             f'threshold: {agent_message.agent_message}'
+                                                                             )
                 # if agent recognizes it:
-                if site_value:
-                    matching_sites = self.db_sites.df[self.db_sites.df[site_field] == site_value]
-                    # if its in the data. dont really necessary
-                    if not matching_sites.empty:
-                        site = matching_sites['site_id'].iloc[0]
-                        response["rule_instance"]["params"][site_field] = site
-                        return True
+                else:
+                    site = self.db_sites.df[self.db_sites.df[site_field] == site_value]['site_id'].iloc[0]
+                    response["rule_instance"]["params"][site_field] = site
+                    return True
             return False
 
         if not get_site_id('site'):
             get_site_id('Site')
-
         return response
 
     def tweak_parameters(
             self,
+            rag_temperature: float = GLOBALS.rag_temperature,
             classification_threshold: float = GLOBALS.classification_threshold,
-            classification_temperature: float = GLOBALS.classification_temperature,
-            examples_rag_threshold: float = GLOBALS.examples_rag_threshold,
             site_rag_threshold: float = GLOBALS.site_rag_threshold,
-            site_temperature: float = GLOBALS.site_temperature,
+            add_example_rag_threshold: float = GLOBALS.add_example_rag_threshold,
     ) -> bool:
+        GLOBALS.rag_temperature = rag_temperature
         GLOBALS.classification_threshold = classification_threshold
-        GLOBALS.examples_rag_threshold = examples_rag_threshold
-        GLOBALS.classification_temperature = classification_temperature
-        GLOBALS.site_rag_threshold = site_rag_threshold,
-        GLOBALS.site_temperature = site_temperature,
+        GLOBALS.site_rag_threshold = site_rag_threshold
+        GLOBALS.add_example_rag_threshold = add_example_rag_threshold
         return True
 
     def feedback(self, rig_response: dict, good: bool = None) -> bool:
@@ -145,28 +131,35 @@ class Rig:
         else:
             self.db_unknown.df.loc[len(self.db_unknown.df)] = new_row
         self.db_unknown.save_db()
+        print(rig_response['query'])
         if good:
             example = dict(
                 id=rig_response["query"],
                 free_text=rig_response["query"],
                 rule_name=rig_response["rule_name"],
-                schema=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "schema"].iloc[
-                    0],
-                description=
-                self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "description"].iloc[0],
-                rule_instance_params=rig_response["rule_instance_params"]
+                schema=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "schema"].iloc[0],
+                description=self.db_rules.df.loc[self.db_rules.df["rule_name"] == rig_response["rule_name"], "description"].iloc[0],
+                rule_instance_params=rig_response["rule_instance_params"],
+                embeddings=self.agents_manager[GLOBALS.classifier_agent].get_sample_embeddings(
+                    sample_name=rig_response['query'],
+                    query_to_embed=rig_response['query']
+                )[1],
+                usage="0"
             )
-
-            success, index, example_name, example_embeddings = self.agents_manager[
-                GLOBALS.examples_finder_agent].add_example(
-                example["free_text"])
-            if success:
-                example["embeddings"] = example_embeddings
-                if not index:
-                    self.db_examples.df = pd.concat([self.db_examples.df, pd.DataFrame([example])], ignore_index=True)
-                if index:
-                    self.db_examples.df.loc[index] = example
-                self.db_examples.save_db()
+            # check if it to close to other examples:
+            examples = self.agents_manager[GLOBALS.classifier_agent].predict(example['free_text'],
+                                                                             self.db_examples.df['free_text'].tolist(),
+                                                                             self.db_examples.df['embeddings'].tolist()
+                                                                             ).agent_message
+            if examples[0][0] != None:
+                if examples[0][1] < GLOBALS.add_example_rag_threshold:
+                    print('didnt add the example')
+                    return True
+            try:
+                index = self.db_examples.df['rule_name'].tolist().index(example['id'])
+            except ValueError:
+                self.db_examples.df.loc[len(self.db_rules.df)] = example
+            self.db_examples.save_db()
         return True
 
     def evaluate(
@@ -215,8 +208,6 @@ class Rig:
             self.db_unknown.init_df(force=True)
         return True
 
-
-
     def rephrase_query(self, query) -> str:
         """
         takes query and returning it professional, and translate it to english if needed.
@@ -227,7 +218,7 @@ class Rig:
         agent_message = self.agents_manager[GLOBALS.summarization_agent:query]
         return str(agent_message.agent_message)
 
-######################################
+    ######################################
 
     def get_rules_names(self) -> list:
         """
@@ -266,8 +257,9 @@ class Rig:
 
         # agent embed and add everything to the agent data
         rules_names = [rule['rule_name'] for rule in rules_fields]
-        rules_names, rules_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].get_ruleS_embeddings(rules_names,
-                                                                                                     chunks_to_embed)
+        rules_names, rules_embeddings = self.agents_manager[GLOBALS.classifier_agent].get_sampleS_embeddings(
+            rules_names,
+            chunks_to_embed)
         for i in range(len(rules_fields)):
             rules_fields[i]["embeddings"] = rules_embeddings[i]
 
@@ -290,17 +282,20 @@ class Rig:
         rule_fields, words_to_embed = self.add_new_types.add(rule_type=rule_type)
 
         # agent embed and add everything to the agent data
-        success, index, rule_name, rule_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].get_rule_embeddings(
+        rule_name, rule_embeddings = self.agents_manager[GLOBALS.classifier_agent].get_sample_embeddings(
             rule_fields["rule_name"], words_to_embed)
         rule_fields["embeddings"] = rule_embeddings
 
         # add to the db for future loading
-        if success:
-            if index:
-                self.db_rules.df.loc[index] = rule_fields
-            else:
-                self.db_rules.df.loc[len(self.db_rules.df)] = rule_fields
-            self.db_rules.save_db()
+        try:
+            index = self.db_rules.df['rule_name'].tolist().index(rule_name)
+        except ValueError:
+            index = -1  # not exist yet in the data
+        if index != -1:
+            self.db_rules.df.loc[index] = rule_fields
+        else:
+            self.db_rules.df.loc[len(self.db_rules.df)] = rule_fields
+        self.db_rules.save_db()
         return True
 
     def remove_rule(self, rule_name: str):
@@ -337,7 +332,8 @@ class Rig:
 
         # agent embed and add everything to the agent data
         sites_names = [site_dict["site"] for site_dict in sites]
-        sites_names, sites_embeddings = self.agents_manager[GLOBALS.site_agent].add_siteS(sites_names)
+        sites_names, sites_embeddings = self.agents_manager[GLOBALS.classifier_agent].get_sampleS_embeddings(
+            sites_names, sites_names)
         for i in range(len(sites)):
             sites[i]["embeddings"] = sites_embeddings[i]
 
@@ -348,18 +344,20 @@ class Rig:
 
     def add_site(self, site: dict):
         # expected = {'site': 'ashdod', 'site_id': __site_id__}
-        success, index, rule_name, rule_embeddings = self.agents_manager[GLOBALS.site_agent].add_site(site["site"])
+        rule_name, rule_embeddings = self.agents_manager[GLOBALS.classifier_agent].get_sample_embeddings(site["site"], site["site"])
         site["embeddings"] = rule_embeddings
 
         # add to the db for future loading
-        if success:
-            if index:
-                self.db_sites.df.loc[index] = site
-            else:
-                self.db_sites.df.loc[len(self.db_sites.df)] = site
-            self.db_sites.save_db()
+        try:
+            index = self.db_sites.df['site'].tolist().index(rule_name)
+        except ValueError:
+            index = -1  # not exist yet in the data
+        if index != -1:
+            self.db_sites.df.loc[index] = site
+        else:
+            self.db_sites.df.loc[len(self.db_sites.df)] = site
+        self.db_sites.save_db()
         return True
-        pass
 
     def remove_site(self, site_name: str):
         if site_name not in self.db_sites.df['site'].values:
@@ -370,8 +368,8 @@ class Rig:
 
         # Reset the index after removal
         self.db_sites.df = self.db_sites.df.reset_index(drop=True)
-        if self.agents_manager[GLOBALS.site_agent].remove_site(site_name):
-            return True
+        return True
 
     def get_existing_sites(self) -> list:
-        return [{'site': site, 'site_id': site_id} for site, site_id in zip(self.db_sites.df['site'].tolist(), self.db_sites.df['site_id'].tolist())]
+        return [{'site': site, 'site_id': site_id} for site, site_id in
+                zip(self.db_sites.df['site'].tolist(), self.db_sites.df['site_id'].tolist())]

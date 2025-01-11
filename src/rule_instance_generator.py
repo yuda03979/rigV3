@@ -40,10 +40,12 @@ class RuleInstanceGenerator:
                  Contains keys: is_error, error_message, confidence, rule_instance
         """
         rule_names_list = self.__classify_rule(agents_manager, db_rules, free_text)
-        if rule_names_list is None:
-            return dict(is_error=True, error_message="didn't find rule name")
 
+        if rule_names_list[0][1] < GLOBALS.classification_threshold:
+            return dict(is_error=True,
+                        error_message=f"rule didnt succeed classification threshold {rule_names_list}didn't find rule name")
         rule_name = rule_names_list[0][0]
+
         response, mismatch_rule_name = self.__generate(agents_manager, db_rules, db_examples, rule_name, free_text)
 
         if mismatch_rule_name and len(rule_names_list) >= 2:
@@ -107,12 +109,16 @@ class RuleInstanceGenerator:
         Returns:
             list: List of tuples containing (rule_name, score) pairs, sorted by score
         """
-        agent_message: pydantic.BaseModel = agents_manager[GLOBALS.rule_classifier_agent].predict(
+        agent_message: pydantic.BaseModel = agents_manager[GLOBALS.classifier_agent].predict(
             query=free_text,
-            samples_id=db_rules.df["rule_name"].tolist(),
-            samples_embeddins=db_rules.df["embeddings"].tolist()
+            samples_ids=db_rules.df["rule_name"].tolist(),
+            samples_embeddings=db_rules.df["embeddings"].tolist()
         )
-        return agent_message.agent_message
+        rule_names_list = agent_message.agent_message
+        if rule_names_list[0][0] is None:
+            raise ValueError("please enter rules!")
+
+        return rule_names_list
 
     def __get_params(self, db_rules, rule_name):
         """
@@ -143,14 +149,31 @@ class RuleInstanceGenerator:
             tuple: (example1, example2) where each example is a formatted string containing
                   free_text, schema, and output information
         """
-        agent_message: pydantic.BaseModel = agents_manager[GLOBALS.examples_finder_agent:free_text]
-
-        example1 = agent_message.agent_message[0]
-        example2 = agent_message.agent_message[1]
+        agent_message: pydantic.BaseModel = agents_manager[GLOBALS.classifier_agent].predict(
+            free_text,
+            db_examples.df['free_text'].tolist(),
+            db_examples.df['embeddings'].tolist(),
+            softmax=False
+        )
+        try:
+            example1 = agent_message.agent_message[0][0]
+            example2 = agent_message.agent_message[1][0]
+        except:
+            example1, example2 = None, None
 
         if example1 is not None and example2 is not None:
             example1_free_text, example1_schema, example1_output = db_examples.get_example(example1)
             example2_free_text, example2_schema, example2_output = db_examples.get_example(example2)
+
+            usage = int(db_examples.df.loc[db_examples.df['free_text'] == example1_free_text, "usage"].iloc[0])
+            usage += 1
+            db_examples.df.loc[db_examples.df['free_text'] == example1_free_text, "usage"] = str(usage)
+
+            usage = int(db_examples.df.loc[db_examples.df['free_text'] == example2_free_text, "usage"].iloc[0])
+            usage += 1
+            db_examples.df.loc[db_examples.df['free_text'] == example2_free_text, "usage"] = str(usage)
+
+            db_examples.save_db()
 
             example1 = f"Free_text:\n{example1_free_text},\nSchema:\n{example1_schema},\nOutput:\n{example1_output}"
             example2 = f"Free_text:\n{example2_free_text},\nschema:\n{example2_schema},\nOutput:\n{example2_output}"
@@ -187,6 +210,7 @@ class RuleInstanceGenerator:
         agents_flow: pydantic.BaseModel = agents_manager.get_agents_flow()
 
         response = agents_flow.model_dump()
+        response["query"] = free_text
         response["rule_name"] = rule_name
         response["rule_instance_params"] = agent_message.agent_message[0]
         response["confidence"] = agent_message.agent_message[1]
