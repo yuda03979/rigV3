@@ -1,3 +1,6 @@
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
 from Ollamamia.globals_dir.models_manager import MODELS_MANAGER
 from Ollamamia.globals_dir.utils import AgentMessage
 from Ollamamia.agents.logic.basic_rag import BasicRag
@@ -42,7 +45,6 @@ class AgentRuleClassifier:
         """
         self.agent_name = agent_name
         self.model_nickname = f"{agent_name}_AgentRuleClassifier_{GLOBALS.rag_model_name}"
-        self.basic_rag = BasicRag(max_samples=self.max_rules)
         # initializing the model
         MODELS_MANAGER[self.model_nickname] = [self.engine, self.model_name, self.task]
         MODELS_MANAGER[self.model_nickname].config.prefix = self.prefix  # add prefix for improving the rag accuracy
@@ -67,7 +69,7 @@ class AgentRuleClassifier:
         """
         return GLOBALS.classification_temperature
 
-    def predict(self, query: str) -> AgentMessage:
+    def predict(self, query: str, samples_id, samples_embeddings) -> AgentMessage:
         """
         Classify a query string using the RAG system.
 
@@ -91,8 +93,10 @@ class AgentRuleClassifier:
 
         # agent logic
         query_embeddings: list[float] = MODELS_MANAGER[self.model_nickname].infer(query)[0]
-        rules_list = self.basic_rag.get_close_types_names(
+        rules_list = self.get_close_types_names(
             query_embedding=query_embeddings,
+            samples_ids=samples_id,
+            samples_embeddings=samples_embeddings,
             softmax=self.softmax,
             temperature=self.softmax_temperature
         )
@@ -120,7 +124,7 @@ class AgentRuleClassifier:
         )
         return agent_message
 
-    def add_rule(self, rule_name: str, query_to_embed: str) -> tuple[bool, int | None, str, list[float]]:
+    def get_rule_embeddings(self, rule_name: str, query_to_embed: str) -> tuple[bool, int | None, str, list[float]]:
         """
         Add a single rule to the classifier.
 
@@ -136,10 +140,9 @@ class AgentRuleClassifier:
                 - query_embeddings (list[float]): The embedded representation of the rule
         """
         query_embeddings: list[float] = MODELS_MANAGER[self.model_nickname].infer(query_to_embed)[0]
-        success, index = self.basic_rag.add_sample(sample_id=rule_name, sample_embeddings=query_embeddings)
-        return success, index, rule_name, query_embeddings
+        return rule_name, query_embeddings
 
-    def add_ruleS(self, rules_names: list[str], queries_to_embed: list[str]) -> tuple[list[str], list[list[float]]]:
+    def get_ruleS_embeddings(self, rules_names: list[str], queries_to_embed: list[str]) -> tuple[list[str], list[list[float]]]:
         """
         Add multiple rules to the classifier.
 
@@ -155,22 +158,72 @@ class AgentRuleClassifier:
                 - queries_embeddings (list[list[float]]): List of embedded representations
         """
         queries_embeddings: list[list[float]] = MODELS_MANAGER[self.model_nickname].infer(queries_to_embed)
-        self.basic_rag.add_samples(samples_ids=rules_names, sample_embeddings=queries_embeddings)
         return rules_names, queries_embeddings
 
-    def add_embedded_rules(self, rules: list[str], embedded_rules: list[list[float]]) -> None:
+    def get_close_types_names(
+            self,
+            query_embedding: list[float],
+            samples_ids = list[str],
+            samples_embeddings = list[list[float]],
+            *,
+            softmax: bool = True,
+            temperature: float = 0
+    ):
         """
-        Add pre-embedded rules to the classifier.
+        Find the most similar samples to a query embedding.
+
+        Computes cosine similarity between the query embedding and all stored embeddings,
+        optionally applying softmax normalization with temperature scaling.
 
         Args:
-            rules (list[str]): List of rule identifiers
-            embedded_rules (list[list[float]]): List of pre-computed embeddings
+            query_embedding (list[float]): The embedding vector to compare against stored samples
+            softmax (bool, optional): Whether to apply softmax normalization to similarities. Defaults to True
+            temperature (float, optional): Temperature parameter for softmax scaling. Defaults to 0
+                Higher values make the probability distribution more uniform
+                Lower values make it more concentrated on the highest similarities
+
+        Returns:
+            list[tuple[str, float]] | bool: If samples exist, returns list of tuples containing:
+                - sample_id (str): The identifier of the sample
+                - similarity (float): The similarity score (cosine similarity or softmax probability)
+                If no samples exist, returns False
 
         Note:
-            This method assumes the embeddings were generated using the same model
-            and configuration as the current classifier.
+            Results are sorted by similarity in descending order
         """
-        self.basic_rag.add_samples(samples_ids=rules, sample_embeddings=embedded_rules)
+        rule_names_result = []
 
-    def remove_rule(self, rule_name) -> bool:
-        return self.basic_rag.remove_sample(sample_id=rule_name)
+        if len(samples_ids) < 1:
+            print("there's no samples")
+            return False
+
+        array_similarity = cosine_similarity([query_embedding], samples_embeddings)[0]
+        if softmax:
+            array_similarity = self.softmax_with_temperature(logits=array_similarity, temperature=temperature)
+        indexes = np.argsort(array_similarity)[::-1]
+        # adding the rules names and their score
+        for i in range(len(samples_ids)):
+            rule_names_result.append((samples_ids[indexes[i]], array_similarity[indexes[i]]))
+
+        return rule_names_result
+
+    @staticmethod
+    def softmax_with_temperature(logits, temperature=1.0):
+        """
+        Apply softmax with temperature scaling to a vector of logits.
+
+        The temperature parameter controls the "sharpness" of the probability distribution:
+        - temperature > 1.0 makes the distribution more uniform
+        - temperature < 1.0 makes the distribution more peaked
+
+        Args:
+            logits (numpy.ndarray): Input vector of similarity scores
+            temperature (float, optional): Temperature scaling factor. Defaults to 1.0
+
+        Returns:
+            numpy.ndarray: Softmax probabilities with temperature scaling
+        """
+        logits = np.array(logits)
+        scaled_logits = logits / max(temperature, 1e-8)
+        exps = np.exp(scaled_logits - np.max(scaled_logits))  # Stability adjustment
+        return exps / np.sum(exps)

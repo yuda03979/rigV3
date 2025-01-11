@@ -17,16 +17,14 @@ class BasicRag:
         samples_embeddings (list[list[float]]): List of embedding vectors corresponding to samples
     """
 
-    def __init__(self, max_samples: int):
+    def __init__(self):
         """
         Initialize the BasicRag instance.
 
         Args:
             max_samples (int): Maximum number of samples that can be stored in the database
         """
-        self.max_samples = max_samples
-        self.samples_id = []
-        self.samples_embeddings = []
+        pass
 
     def add_sample(self, sample_id: str, sample_embeddings: list[float]) -> tuple[bool, None | int]:
         """

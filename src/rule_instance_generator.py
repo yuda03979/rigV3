@@ -39,7 +39,7 @@ class RuleInstanceGenerator:
             dict: Response containing the generated rule instance or error information
                  Contains keys: is_error, error_message, confidence, rule_instance
         """
-        rule_names_list = self.__classify_rule(agents_manager, free_text)
+        rule_names_list = self.__classify_rule(agents_manager, db_rules, free_text)
         if rule_names_list is None:
             return dict(is_error=True, error_message="didn't find rule name")
 
@@ -96,7 +96,7 @@ class RuleInstanceGenerator:
 
         return response, mismatch_rule_name
 
-    def __classify_rule(self, agents_manager, free_text):
+    def __classify_rule(self, agents_manager, db_rules, free_text):
         """
         Classifies the input text to determine appropriate rule names.
 
@@ -107,7 +107,11 @@ class RuleInstanceGenerator:
         Returns:
             list: List of tuples containing (rule_name, score) pairs, sorted by score
         """
-        agent_message: pydantic.BaseModel = agents_manager[GLOBALS.rule_classifier_agent:free_text]
+        agent_message: pydantic.BaseModel = agents_manager[GLOBALS.rule_classifier_agent].predict(
+            query=free_text,
+            samples_id=db_rules.df["rule_name"].tolist(),
+            samples_embeddins=db_rules.df["embeddings"].tolist()
+        )
         return agent_message.agent_message
 
     def __get_params(self, db_rules, rule_name):

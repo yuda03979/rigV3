@@ -266,7 +266,7 @@ class Rig:
 
         # agent embed and add everything to the agent data
         rules_names = [rule['rule_name'] for rule in rules_fields]
-        rules_names, rules_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].add_ruleS(rules_names,
+        rules_names, rules_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].get_ruleS_embeddings(rules_names,
                                                                                                      chunks_to_embed)
         for i in range(len(rules_fields)):
             rules_fields[i]["embeddings"] = rules_embeddings[i]
@@ -290,7 +290,7 @@ class Rig:
         rule_fields, words_to_embed = self.add_new_types.add(rule_type=rule_type)
 
         # agent embed and add everything to the agent data
-        success, index, rule_name, rule_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].add_rule(
+        success, index, rule_name, rule_embeddings = self.agents_manager[GLOBALS.rule_classifier_agent].get_rule_embeddings(
             rule_fields["rule_name"], words_to_embed)
         rule_fields["embeddings"] = rule_embeddings
 
@@ -321,8 +321,7 @@ class Rig:
 
         # Reset the index after removal
         self.db_rules.df = self.db_rules.df.reset_index(drop=True)
-        if self.agents_manager[GLOBALS.rule_classifier_agent].remove_rule(rule_name):
-            return True
+        return True
 
     ######################################
     def set_sites(self, sites: list[dict]):
