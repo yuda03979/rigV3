@@ -25,6 +25,7 @@ class Globals:
     # those 4 are just a nickname:
 
     run_async_models = True if os.getenv("RUN_ASYNC_MODELS").lower() == "true" else False
+    max_examples = validate_numeric("MAX_EXAMPLES", value_type=int)
 
     summarization_agent = "summarization"
     classifier_agent = "rule_classifier"

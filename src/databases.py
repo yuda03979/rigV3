@@ -89,6 +89,7 @@ class DbExamples(DbBase):
         Initializes the examples database by loading the data from the specified database path.
         """
         self.init_df()
+        self.max_examples = GLOBALS.max_examples
 
     def get_example(self, example):
         """
@@ -105,6 +106,20 @@ class DbExamples(DbBase):
             row = examples_dict[example]
             return row['free_text'], row['schema'], row['rule_instance_params']
         print(f"Example {example} not found")
+
+    def remove_unused(self):
+        try:
+            if self.max_examples > len(self.df):
+                usage_numeric = pd.to_numeric(self.df['usage'])
+                min_usage = usage_numeric.min()
+                min_usage_records = self.df[usage_numeric == min_usage]
+                oldest_record_index = min_usage_records.index[0]
+                self.df = self.df.drop(oldest_record_index)
+                print("One example deleted")
+        except:
+            return False
+        return True
+
 
 
 class DbUnknowns(DbBase):

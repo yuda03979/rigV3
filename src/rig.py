@@ -131,7 +131,7 @@ class Rig:
         else:
             self.db_unknown.df.loc[len(self.db_unknown.df)] = new_row
         self.db_unknown.save_db()
-        print(rig_response['query'])
+
         if good:
             example = dict(
                 id=rig_response["query"],
@@ -146,18 +146,19 @@ class Rig:
                 )[1],
                 usage="0"
             )
-            # check if it to close to other examples:
+            # check if it too close to other examples:
             examples = self.agents_manager[GLOBALS.classifier_agent].predict(example['free_text'],
                                                                              self.db_examples.df['free_text'].tolist(),
                                                                              self.db_examples.df['embeddings'].tolist()
                                                                              ).agent_message
-            if examples[0][0] != None:
-                if examples[0][1] < GLOBALS.add_example_rag_threshold:
-                    print('didnt add the example')
-                    return True
+            if examples[0][0] is None or examples[0][1] < GLOBALS.add_example_rag_threshold:
+                print('didnt add the example')
+                return True
             try:
-                index = self.db_examples.df['rule_name'].tolist().index(example['id'])
+                index = self.db_examples.df['rule_name'].tolist().index(example['free_text'])
+                self.db_examples.df.loc[index] = example
             except ValueError:
+                self.db_examples.remove_unused()
                 self.db_examples.df.loc[len(self.db_rules.df)] = example
             self.db_examples.save_db()
         return True
@@ -289,11 +290,8 @@ class Rig:
         # add to the db for future loading
         try:
             index = self.db_rules.df['rule_name'].tolist().index(rule_name)
-        except ValueError:
-            index = -1  # not exist yet in the data
-        if index != -1:
             self.db_rules.df.loc[index] = rule_fields
-        else:
+        except ValueError:  # not exist yet in the data
             self.db_rules.df.loc[len(self.db_rules.df)] = rule_fields
         self.db_rules.save_db()
         return True
@@ -350,11 +348,8 @@ class Rig:
         # add to the db for future loading
         try:
             index = self.db_sites.df['site'].tolist().index(rule_name)
-        except ValueError:
-            index = -1  # not exist yet in the data
-        if index != -1:
             self.db_sites.df.loc[index] = site
-        else:
+        except ValueError:  # not exist yet in the data
             self.db_sites.df.loc[len(self.db_sites.df)] = site
         self.db_sites.save_db()
         return True
