@@ -78,7 +78,7 @@ class Rig:
                 )
                 site_value = agent_message.agent_message[0][0]
                 if site_value is None or agent_message.agent_message[0][1] < GLOBALS.site_rag_threshold:
-                    response["rule_instance"]["params"][site_field] = site_value[0][0]
+                    response["rule_instance"]["params"][site_field] = site_value
                     response['is_error'] = True
                     response["error_message"] = response["error_message"] + (f' closest site didnt succeed the '
                                                                              f'threshold: {agent_message.agent_message}'
@@ -151,15 +151,15 @@ class Rig:
                                                                              self.db_examples.df['free_text'].tolist(),
                                                                              self.db_examples.df['embeddings'].tolist()
                                                                              ).agent_message
-            if examples[0][0] is None or examples[0][1] < GLOBALS.add_example_rag_threshold:
+            if examples[0][1] is not None and examples[0][1] < GLOBALS.add_example_rag_threshold:
                 print('didnt add the example')
                 return True
             try:
-                index = self.db_examples.df['rule_name'].tolist().index(example['free_text'])
+                index = self.db_examples.df['free_text'].tolist().index(example['free_text'])
                 self.db_examples.df.loc[index] = example
             except ValueError:
                 self.db_examples.remove_unused()
-                self.db_examples.df.loc[len(self.db_rules.df)] = example
+                self.db_examples.df.loc[len(self.db_examples.df)] = example
             self.db_examples.save_db()
         return True
 
@@ -260,7 +260,8 @@ class Rig:
         rules_names = [rule['rule_name'] for rule in rules_fields]
         rules_names, rules_embeddings = self.agents_manager[GLOBALS.classifier_agent].get_sampleS_embeddings(
             rules_names,
-            chunks_to_embed)
+            chunks_to_embed
+        )
         for i in range(len(rules_fields)):
             rules_fields[i]["embeddings"] = rules_embeddings[i]
 
@@ -363,6 +364,7 @@ class Rig:
 
         # Reset the index after removal
         self.db_sites.df = self.db_sites.df.reset_index(drop=True)
+        self.db_sites.save_db()
         return True
 
     def get_existing_sites(self) -> list:

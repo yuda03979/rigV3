@@ -39,7 +39,7 @@ def post_processing(type_name: str, model_response: dict, schema: dict, default_
     default_param_out_params = ["severity", "ruleInstanceName"]
 
     # Update params excluding specific keys
-    for param in [key for key in default_rule_instance['params'].keys()]:
+    for param in [key for key in default_rule_instance['params'].keys() if key not in default_param_out_params]:
         param_clean = clean_text(param)
         default_rule_instance['params'][param] = model_response_clean.get(param_clean)
 

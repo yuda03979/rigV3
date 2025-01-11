@@ -96,20 +96,23 @@ class DbExamples(DbBase):
         Retrieves data for a specific example ID from the database.
 
         Args:
-            example (Any): The ID of the example to retrieve.
+            example: The ID of the example to retrieve.
 
         Returns:
             tuple: A tuple containing free_text, schema, and rule_instance for the specified example ID.
         """
-        examples_dict = self.df.set_index('id').to_dict('index')
-        if example in examples_dict:
-            row = examples_dict[example]
-            return row['free_text'], row['schema'], row['rule_instance_params']
-        print(f"Example {example} not found")
+        # Find the row with matching ID without using set_index
+        matching_row = self.df[self.df['id'] == example]
+
+        if len(matching_row) > 0:
+            # Get the first matching row
+            row = matching_row.iloc[0]
+            return row['free_text'], row['schema'], row['rule_instance']
+        return None, None, None
 
     def remove_unused(self):
         try:
-            if self.max_examples > len(self.df):
+            if self.max_examples < len(self.df):
                 usage_numeric = pd.to_numeric(self.df['usage'])
                 min_usage = usage_numeric.min()
                 min_usage_records = self.df[usage_numeric == min_usage]
