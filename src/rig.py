@@ -115,6 +115,7 @@ class Rig:
                 self.agents_manager[GLOBALS.rule_instance_generator_agent] = AgentsStore.async_agent_generate_schema
             else:
                 self.agents_manager[GLOBALS.rule_instance_generator_agent] = AgentsStore.agent_generate_schema
+            GLOBALS.run_async_models = run_async_models
         return True
 
     def feedback(self, rig_response: dict, good: bool = None) -> bool:
@@ -200,14 +201,14 @@ class Rig:
         give basic data about the program and the resources usage
         :return: dict
         """
-        globals_data = {str(k): str(v) for k, v in GLOBALS.__class__.__dict__.items()}
+        globals_data = GLOBALS.__dict__
         response = metadata(self)
         response["globals_data"] = globals_data
         response["ollama_models"] = dict(existing_models=ollama.list(), loaded_models=ollama.ps())
         return response
 
     def restart(self, db_rules: bool = False, db_examples: bool = False, db_sites: bool = False,
-                _db_unknown: bool = False):
+                db_unknown: bool = False):
         """deleting the db's"""
         if db_rules:
             self.db_rules.init_df(force=True)
@@ -215,7 +216,7 @@ class Rig:
             self.db_examples.init_df(force=True)
         if db_sites:
             self.db_sites.init_df(force=True)
-        if _db_unknown:
+        if db_unknown:
             self.db_unknown.init_df(force=True)
         return True
 

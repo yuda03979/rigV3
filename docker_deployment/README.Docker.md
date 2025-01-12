@@ -166,25 +166,23 @@ g. **POST `/feedback`**
 curl -X POST "http://127.0.0.1:80/feedback" -H "Content-Type: application/json" -d '{"rig_response": {"query": "example query"}, "good": true}'
 ```
 
-h. **POST `/evaluate`**
-```bash
-curl -X 'POST'   'http://0.0.0.0/evaluate?start_point=0&end_point=3&jump=1&sleep_time_each_10_iter=30&batch_size=250&set_eval_rules=true'   -H 'accept: application/json'   -d ''
-```
-
 i. **GET `/metadata`**
 ```bash
 curl -X GET "http://127.0.0.1:80/metadata"
 ```
 
-j. **POST `/restart`**
-```bash
-curl -X POST "http://127.0.0.1:80/restart" -H "Content-Type: application/json" -d '{"db_rules": true, "db_examples": true}'
+```
+curl -X POST "http://localhost:80/set_sites" \ 
+-H "Content-Type: application/json" \
+-d '[
+  {"site": "ashdod", "site_id": "1234"},
+  {"site": "Elta", "site_id": 4321},
+  {"site": "HQ", "site_id": {"region": "North"}},
+  {"site": "Temp", "site_id": ["A", "B", "C"]}
+]'
 ```
 
-k. **POST `/rephrase_query`**
-```bash
-curl -X POST "http://127.0.0.1:80/rephrase_query" -H "Content-Type: application/json" -d '{"query": "example query"}'
-```
+
 
 6. **Stop the Server**
 To stop the running server, press `Ctrl+C` in the terminal.

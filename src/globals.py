@@ -23,37 +23,37 @@ def validate_numeric(var_name, value_type):
 
 class Globals:
     # those 4 are just a nickname:
+    def __init__(self):
+        self.run_async_models = True if os.getenv("RUN_ASYNC_MODELS").lower() == "true" else False
+        self.max_examples = validate_numeric("MAX_EXAMPLES", value_type=int)
 
-    run_async_models = True if os.getenv("RUN_ASYNC_MODELS").lower() == "true" else False
-    max_examples = validate_numeric("MAX_EXAMPLES", value_type=int)
+        self.summarization_agent = "summarization"
+        self.classifier_agent = "rule_classifier"
+        self.rule_instance_generator_agent = "rule_instance_generator"
 
-    summarization_agent = "summarization"
-    classifier_agent = "rule_classifier"
-    rule_instance_generator_agent = "rule_instance_generator"
+        self.generation_model_name = os.getenv("GENERATION_MODEL_NAME")
+        self.validation_model_name = os.getenv("VALIDATION_MODEL_NAME")
+        self.rag_model_name = os.getenv("RAG_MODEL_NAME")
 
-    generation_model_name = os.getenv("GENERATION_MODEL_NAME")
-    validation_model_name = os.getenv("VALIDATION_MODEL_NAME")
-    rag_model_name = os.getenv("RAG_MODEL_NAME")
+        self.project_dir = validate_path("PROJECT_DIR")
+        self.eval_dir = validate_path("EVAL_DIR")
+        self.classification_threshold = validate_numeric("CLASSIFICATION_THRESHOLD", value_type=float)
+        self.site_rag_threshold = validate_numeric("SITE_RAG_THRESHOLD", value_type=float)
+        self.add_example_rag_threshold = validate_numeric("ADD_EXAMPLE_RAG_THRESHOLD", value_type=float)
+        self.rag_temperature = validate_numeric("RAG_TEMPERATURE", value_type=float)
 
-    project_dir = validate_path("PROJECT_DIR")
-    eval_dir = validate_path("EVAL_DIR")
-    classification_threshold = validate_numeric("CLASSIFICATION_THRESHOLD", value_type=float)
-    site_rag_threshold = validate_numeric("SITE_RAG_THRESHOLD", value_type=float)
-    add_example_rag_threshold = validate_numeric("ADD_EXAMPLE_RAG_THRESHOLD", value_type=float)
-    rag_temperature = validate_numeric("RAG_TEMPERATURE", value_type=float)
+        # things that should be in project_dir
+        self.db_rules_path = os.path.join(self.project_dir, "db_rules.csv")
+        self.db_examples_path = os.path.join(self.project_dir, "db_examples.csv")
+        self.db_unknowns_path = os.path.join(self.project_dir, "db_unknowns.csv")
+        self.db_site_path = os.path.join(self.project_dir, "db_sites.csv")
 
-    # things that should be in project_dir
-    db_rules_path = os.path.join(project_dir, "db_rules.csv")
-    db_examples_path = os.path.join(project_dir, "db_examples.csv")
-    db_unknowns_path = os.path.join(project_dir, "db_unknowns.csv")
-    db_site_path = os.path.join(project_dir, "db_sites.csv")
+        self.rules_folder_path = os.path.join(self.project_dir, "rule_types")
 
-    rules_folder_path = os.path.join(project_dir, "rule_types")
-
-    # evaluation data
-    evaluation_rules_folder_path = os.path.join(eval_dir, "rule_types")
-    evaluation_data_path = os.path.join(eval_dir, "evaluation_data.csv")
-    evaluation_output_dir = os.path.join(eval_dir, "output")
+        # evaluation data
+        self.evaluation_rules_folder_path = os.path.join(self.eval_dir, "rule_types")
+        self.evaluation_data_path = os.path.join(self.eval_dir, "evaluation_data.csv")
+        self.evaluation_output_dir = os.path.join(self.eval_dir, "output")
 
 
 GLOBALS = Globals()
