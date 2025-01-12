@@ -107,7 +107,7 @@ class DbExamples(DbBase):
         if len(matching_row) > 0:
             # Get the first matching row
             row = matching_row.iloc[0]
-            return row['free_text'], row['schema'], row['rule_instance']
+            return row['free_text'], row['schema'], row['rule_instance_params']
         return None, None, None
 
     def remove_unused(self):

@@ -96,15 +96,25 @@ class Rig:
 
     def tweak_parameters(
             self,
+            run_async_models: bool = GLOBALS.run_async_models,
             rag_temperature: float = GLOBALS.rag_temperature,
             classification_threshold: float = GLOBALS.classification_threshold,
             site_rag_threshold: float = GLOBALS.site_rag_threshold,
             add_example_rag_threshold: float = GLOBALS.add_example_rag_threshold,
+            max_examples: int = GLOBALS.max_examples
     ) -> bool:
         GLOBALS.rag_temperature = rag_temperature
         GLOBALS.classification_threshold = classification_threshold
         GLOBALS.site_rag_threshold = site_rag_threshold
         GLOBALS.add_example_rag_threshold = add_example_rag_threshold
+        GLOBALS.max_examples = max_examples
+
+        if run_async_models != GLOBALS.run_async_models:
+            print("switch async")
+            if run_async_models:
+                self.agents_manager[GLOBALS.rule_instance_generator_agent] = AgentsStore.async_agent_generate_schema
+            else:
+                self.agents_manager[GLOBALS.rule_instance_generator_agent] = AgentsStore.agent_generate_schema
         return True
 
     def feedback(self, rig_response: dict, good: bool = None) -> bool:
@@ -209,7 +219,7 @@ class Rig:
             self.db_unknown.init_df(force=True)
         return True
 
-    def rephrase_query(self, query) -> str:
+    def rephrase_query(self, query: str) -> str:
         """
         takes query and returning it professional, and translate it to english if needed.
         it will slow down the system a little bit

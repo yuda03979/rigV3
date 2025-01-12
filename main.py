@@ -1,3 +1,5 @@
+from pydantic import BaseModel
+
 from src.rig import Rig
 from fastapi import FastAPI
 from dotenv import find_dotenv, load_dotenv
@@ -9,6 +11,8 @@ app = FastAPI()
 rig = Rig()
 nest_asyncio.apply()
 
+class Data(BaseModel):
+    query: str
 
 @app.post("/get_rule_instance")
 def get_rule_instance(free_text) -> dict:
@@ -17,7 +21,7 @@ def get_rule_instance(free_text) -> dict:
 
 @app.post("/tweak_parameters")
 def tweak_parameters(**kwargs) -> bool:
-    kwargs = {k: float(v) for k, v in kwargs.items()}
+    kwargs = {k: v for k, v in kwargs.items()}
     return rig.tweak_parameters(**kwargs)
 
 
@@ -51,8 +55,8 @@ def metadata() -> dict:
 
 
 @app.post("/rephrase_query")
-def rephrase_query(query: str) -> str:
-    return rig.rephrase_query(query)
+def rephrase_query(query: Data) -> dict:
+    return dict(response=rig.rephrase_query(query.query))
 
 
 @app.post("/restart")

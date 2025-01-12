@@ -71,6 +71,7 @@ class AsyncAgentGenerateSchema:
             model_config.stop = self.stop
             model_config.temperature = self.temperature
             model_config.top_p = self.top_p
+            ASYNC_MODEL_MANAGER[nickname].config.keep_alive = -1.
 
     async def predict_async(self, kwargs: dict) -> AgentMessage:
         """

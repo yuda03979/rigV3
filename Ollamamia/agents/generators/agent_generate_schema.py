@@ -30,6 +30,7 @@ class AgentGenerateSchema:
         MODELS_MANAGER[self.model_nickname].config.options.stop = self.stop
         MODELS_MANAGER[self.model_nickname].config.options.temperature = self.temperature
         MODELS_MANAGER[self.model_nickname].config.options.top_p = self.top_p
+        MODELS_MANAGER[self.model_nickname].config.keep_alive = -1.
 
     def predict(
             self,
